@@ -36,7 +36,6 @@ const Dashboard = () => {
 
   const fetchAllData = async () => {
     try {
-      // setLoading(true);
       const dataPromises = [
         latestPostByVoice(1),
         bestPostByVoice(24),
@@ -81,7 +80,7 @@ const Dashboard = () => {
           })
         ).values()
       );
-      console.log(uniqueResults);
+
       setFilterData(uniqueResults);
     } catch (error) {
       console.error("Error fetching data", error);
@@ -228,11 +227,14 @@ const Dashboard = () => {
                             {item?.description}
                           </p>
                           <div className="flex sm:justify-start justify-end">
-                            {item?.imagePath ? (
+                            {item?.imagePath &&
+                            /\.(jpg|jpeg|png|gif|webP|svg)(?=\?alt=media)/i.test(
+                              item.imagePath
+                            ) ? (
                               <div className="max-w-[300px] w-full h-[170px] rounded-[10px] mt-[12px]">
                                 <img
                                   className="w-full h-full object-cover rounded-[10px]"
-                                  src={item?.imagePath}
+                                  src={item.imagePath}
                                   alt="postImage"
                                   onError={({ currentTarget }) => {
                                     currentTarget.src = NotFound;
@@ -245,6 +247,7 @@ const Dashboard = () => {
                               <></>
                             )}
                           </div>
+
                           <div className="flex gap-[24px] mt-[20px] flex-wrap">
                             <button
                               className={`flex gap-[16px] text-[14px] `}
