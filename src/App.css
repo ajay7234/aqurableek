@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+  font-family: "Poppins", sans-serif;
+}
+
+.trans{
+  transition: .5s;
+}
+
+.flag-select > div{
+  padding-bottom: 0;
+}
+
+.flag-select button{
+  font-size: 16px;
+  background: #f1f1f1;
+  border: 1px solid #e6e8ec;
+  border-radius: 30px;
+  height: 48px;
+}
+
+.flag-select button::after{
+  display: none !important;
+}
+
+/* custom checkbox */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: auto;
+}
+
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.container .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #fff;
+  border: 2px solid #212121;
+  border-radius: 2px;
+}
+
+.container input:checked ~ .checkmark {
+  background-color: #EF9595;
+  border: 2px solid #EF9595;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.container .checkmark:after {
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+/* loader css */
+.box {
+	font-size: 34px;
+	transition: .1s color, .1s border, .1s transform, .3s opacity;
+}
+
+/* button {
+	display: inline-block;
+	background: transparent;
+	color: white;
+	padding: .5em 1em;
+	border-radius: 5px;
+	font-size: calc(16px + 2vw);
+	
+} */
+
+[class*="loader-"] {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	color: inherit;
+	vertical-align: middle;
+	pointer-events: none;
+}
+.loader-13:before,
+.loader-13:after,
+.loader-13 {
+	border-radius: 50%;
+	animation-fill-mode: both;
+	animation: loader-13 1.8s infinite ease-in-out;
+}
+
+.loader-13 {
+	color: #ff817c;
+	position: relative;
+	transform: translateZ(0);
+	animation-delay: -0.16s;
+	top: -1em;
+	&:before {
+		right: 100%;
+		animation-delay: -0.32s;
+	}
+	&:after {
+		left: 100%;
+	}
+	&:before,
+	&:after {
+		content: '';
+		display: block;
+		position: absolute;
+		top: 0;
+		width: inherit;
+		height: inherit;
+	}
+}
+
+@keyframes loader-13 {
+	0%,
+	80%,
+	100% {
+		box-shadow: 0 1em 0 -1em;
+	}
+	40% {
+		box-shadow: 0 1em 0 -.2em;
+	}
+}
