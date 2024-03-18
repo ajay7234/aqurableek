@@ -34,11 +34,28 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId }) => {
     getUserProfile();
   }, []);
 
+  // const handleFileChange = (e) => {
+  //   const img = URL.createObjectURL(e.target.files[0]);
+  //   setFileName(e.target.files[0]);
+  //   setUpload(img);
+  // };
   const handleFileChange = (e) => {
-    const img = URL.createObjectURL(e.target.files[0]);
-    setFileName(e.target.files[0]);
-    setUpload(img);
+    const file = e.target.files[0];
+    if (file) {
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      const imageExtensions = ["jpg", "jpeg", "png", "gif"];
+
+      if (!imageExtensions.includes(fileExtension)) {
+        toast.error("Unsupported file type. Please upload an image.");
+        return;
+      }
+
+      const img = URL.createObjectURL(file);
+      setFileName(file);
+      setUpload(img);
+    }
   };
+
   return (
     <div>
       <Transition.Root show={open} as={Fragment}>
