@@ -12,7 +12,7 @@ function SinglePost({ post, setPost, postData }) {
   const [tweet, setTweet] = useState(false);
   const [postId, setPostId] = useState("");
 
-  useEffect(() => {}, [postData]);
+  useEffect(() => { }, [postData]);
 
   const handleLike = async (postId) => {
     await updateLikeList(postId);
@@ -60,7 +60,7 @@ function SinglePost({ post, setPost, postData }) {
                       <img
                         src={postData?.user?.profilePic}
                         alt="user"
-                        className="sm:w-[50px] w-[40px] sm:h-[50px] h-[40px] rounded-full object-cover"
+                        className="sm:min-w-[50px] w-[40px] sm:h-[50px] h-[40px] rounded-full object-cover"
                       />
                       <div>
                         <h2 className="text-[18px] font-semibold">

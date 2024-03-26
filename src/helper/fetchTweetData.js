@@ -125,7 +125,6 @@ export const updateUserData = async (userDetails) => {
 
 export const createdDate = () => {
   const currentDateTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
-
   return currentDateTime;
 };
 

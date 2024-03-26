@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { getUserData } from "../../helper/userProfileData";
 import { useNavigate } from "react-router-dom";
 
-const CreateTweet = ({ open, setOpen, showCloseBtn, userId }) => {
+const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
   const [inputValue, setInputValue] = useState("");
   const [upload, setUpload] = useState();
   const [fileName, setFileName] = useState("");
@@ -17,7 +17,9 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId }) => {
 
   const handlePostData = async (userId) => {
     if (inputValue === "") {
-      toast.error("description is required to post");
+      toast.error("description is required for post");
+    } else if (inputValue.length < 17 || inputValue.length > 170) {
+      toast.error("Post length should be between 17 and 170 characters.");
     } else {
       await uploadPostData(inputValue, userId, fileName);
       setOpen(false);
@@ -34,11 +36,6 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId }) => {
     getUserProfile();
   }, []);
 
-  // const handleFileChange = (e) => {
-  //   const img = URL.createObjectURL(e.target.files[0]);
-  //   setFileName(e.target.files[0]);
-  //   setUpload(img);
-  // };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -88,14 +85,16 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId }) => {
                     <div className="p-6">
                       <div
                         className={
-                          !showCloseBtn
-                            ? "flex justify-end"
-                            : "flex justify-between"
+                          showCloseBtn
+                            ? "flex justify-between"
+                            : "flex justify-end"
                         }
                       >
                         {showCloseBtn && (
                           <button
-                            onClick={() => setOpen(false)}
+                            onClick={() => {
+                              setOpen(false);
+                            }}
                             className="text-[#EF9595] text-[24px]"
                           >
                             <IoClose />
@@ -115,14 +114,25 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId }) => {
                             alt="user"
                             className="sm:w-[40px] w-[40px] h-[39px] rounded-full object-cover"
                           />
-                          <textarea
-                            value={inputValue}
-                            name="description"
-                            onChange={(e) => setInputValue(e.target.value)}
-                            type="text"
-                            placeholder="What's happening?"
-                            className="placeholder:text-[#4d4d4d] outline-none w-full resize-none sm:text-[18px] text-[14px]"
-                          />
+                          <div className="w-full relative">
+                            <textarea
+                              value={inputValue}
+                              name="description"
+                              onChange={(e) => setInputValue(e.target.value)}
+                              type="text"
+                              placeholder={
+                                isSignup
+                                  ? "Please enter your first message/word to the world using your language (17 to 170 characters)\n"
+                                  : "What's happening?"
+                              }
+                              className="placeholder:text-[#4d4d4d] outline-none w-full resize-none text-[14px] pb-[20px]"
+                            />
+                            {isSignup && !inputValue.trim() && (
+                              <p className="text-[#4d4d4d] flex justify-end select-none absolute right-0 bottom-0">
+                                رسالة/كلمة للأمة
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <div className="relative">
                           <div className="max-w-[360px] sm:h-[220px] h-[200px] ml-auto rounded-lg">

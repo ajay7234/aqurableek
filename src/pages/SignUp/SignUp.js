@@ -1,6 +1,5 @@
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment } from "react";
 import { FaAngleDown, FaArrowLeft } from "react-icons/fa6";
-import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { Listbox, Transition } from "@headlessui/react";
 import ReactFlagsSelect from "react-flags-select";
@@ -130,9 +129,6 @@ const SignUp = () => {
               response?.uid
             );
           }
-          // if (signUp) {
-          // navigate("/dashboard");
-          // }
         } catch (error) {
           console.error(error.message);
         }
@@ -439,12 +435,6 @@ const SignUp = () => {
           >
             Continue
           </button>
-          {/* <div className="bg-[#323232] h-[1px] w-full mt-[30px]"></div>
-          <div className="flex justify-center my-[40px]">
-            <button className="flex gap-[15px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] justify-center items-center p-[10px] text-slate-500 font-semibold hover:bg-[#ffeeee] trans">
-              <FcGoogle className="text-[24px]" /> Sign Up with Google
-            </button>
-          </div> */}
         </div>
       </div>
       <CreateTweet
@@ -452,6 +442,7 @@ const SignUp = () => {
         setOpen={setOpen}
         showCloseBtn={false}
         userId={userId}
+        isSignup={true}
       />
     </div>
   );

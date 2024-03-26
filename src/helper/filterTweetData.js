@@ -1,7 +1,6 @@
 import {
   get,
   getDatabase,
-  limitToLast,
   orderByChild,
   push,
   query,
@@ -21,8 +20,8 @@ import moment from "moment";
 const database = getDatabase();
 
 export const getTodayDate = (hours) => {
-  const timeAgo = moment().subtract(hours, "hours");
-  const formattedDate = timeAgo.format("YYYY-MM-DD HH:mm:ss") + ".000000Z";
+  const timeAgo = moment.utc().subtract(hours, "hours");
+  const formattedDate = timeAgo.format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
   return formattedDate;
 };
 
@@ -30,11 +29,7 @@ export const latestPostByVoice = async (order) => {
   let response;
   const currentUser = await getUserData();
   const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
-  const recentPostsQuery = query(
-    postsRef,
-    orderByChild("createdAt"),
-    limitToLast(order)
-  );
+  const recentPostsQuery = query(postsRef, orderByChild("createdAt"));
 
   await get(recentPostsQuery)
     .then((snapshot) => {
@@ -44,9 +39,20 @@ export const latestPostByVoice = async (order) => {
           const postData = { ...childSnapshot.val(), id: childSnapshot.key };
           posts.push(postData);
         });
+        const filteredPosts = posts.filter((post) => {
+          const hasValidSubject =
+            post.Subject && post.Subject !== null && post.Subject !== "1";
 
-        const orderedPosts = posts.reverse();
-        response = orderedPosts[order - 1] || null;
+          const hasValidParentChildKeys =
+            !post.parentkey || (post.parentkey && post.childkey);
+
+          // const hasViewList = post.viewsList && post.viewsList !== null;
+
+          return hasValidSubject && hasValidParentChildKeys;
+        });
+
+        const orderedPosts = filteredPosts.reverse();
+        response = orderedPosts[order] || null;
       }
     })
     .catch((error) => {
@@ -69,35 +75,44 @@ export const bestPostByVoice = async (hours) => {
 
   let bestPost = null;
   let highestScore = 0;
-  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss") + ".000000Z";
-
+  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
   await get(recentPostsQuery)
     .then((snapshot) => {
       if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
           const post = childSnapshot.val();
           const postId = childSnapshot.key;
-          const likeListLength = Array.isArray(post.likeList)
-            ? post.likeList.length
-            : 0;
-          const commentCount = post.commentCount || 0;
-          const views = Array.isArray(post.viewsList)
-            ? post.viewsList.length
-            : 0;
-          const score = likeListLength * 100 + commentCount * 10 + views;
 
-          const postTime = moment(
-            post.createdAt,
-            "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
-          );
+          if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+            const likeListLength = Array.isArray(post.likeList)
+              ? post.likeList.length
+              : 0;
+            const commentCount = post.commentCount || 0;
+            const views = Array.isArray(post.viewsList)
+              ? post.viewsList.length
+              : 0;
+            const score = likeListLength * 100 + commentCount * 10 + views;
 
-          if (
-            score > highestScore ||
-            (score === highestScore && postTime.isAfter(latestTime))
-          ) {
-            highestScore = score;
-            bestPost = { ...post, id: postId };
-            latestTime = postTime;
+            const postTime = moment.utc(
+              post.createdAt,
+              "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+            );
+            if (
+              post.Subject &&
+              (post.Subject !== null || post.Subject !== "1") &&
+              post.viewsList &&
+              post.viewsList !== null &&
+              post.viewsList.includes(currentUser.userId) &&
+              (!post.reportList ||
+                !post.reportList.includes(currentUser.userId) ||
+                post.reportList.length <= 6) &&
+              (score > highestScore ||
+                (score === highestScore && postTime.isAfter(latestTime)))
+            ) {
+              highestScore = score;
+              bestPost = { ...post, id: postId };
+              latestTime = postTime;
+            }
           }
         });
       }
@@ -120,35 +135,47 @@ export const bestPostByCountry = async (hours) => {
   );
   let bestPost = null;
   let highestScore = 0;
-  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss") + ".000000Z";
+  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
 
   await get(recentPostsQuery)
     .then((snapshot) => {
       if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
           const post = childSnapshot.val();
+
           const postId = childSnapshot.key;
-          const likeListLength = Array.isArray(post.likeList)
-            ? post.likeList.length
-            : 0;
-          const commentCount = post.commentCount || 0;
-          const views = Array.isArray(post.viewsList)
-            ? post.viewsList.length
-            : 0;
-          const score = likeListLength * 100 + commentCount * 10 + views;
 
-          const postTime = moment(
-            post.createdAt,
-            "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
-          );
+          if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+            const likeListLength = Array.isArray(post.likeList)
+              ? post.likeList.length
+              : 0;
+            const commentCount = post.commentCount || 0;
+            const views = Array.isArray(post.viewsList)
+              ? post.viewsList.length
+              : 0;
+            const score = likeListLength * 100 + commentCount * 10 + views;
 
-          if (
-            score > highestScore ||
-            (score === highestScore && postTime.isAfter(latestTime))
-          ) {
-            highestScore = score;
-            bestPost = { ...post, id: postId };
-            latestTime = postTime;
+            const postTime = moment.utc(
+              post.createdAt,
+              "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+            );
+
+            if (
+              (post.Subject &&
+                post.Subject !== null &&
+                post.Subject !== "1" &&
+                post.viewsList !== null &&
+                post.viewsList.includes(currentUser.userId) &&
+                (!post.reportList ||
+                  !post.reportList.includes(currentUser.userId) ||
+                  post.reportList.length <= 6) &&
+                score > highestScore) ||
+              (score === highestScore && postTime.isAfter(latestTime))
+            ) {
+              highestScore = score;
+              bestPost = { ...post, id: postId };
+              latestTime = postTime;
+            }
           }
         });
       }
@@ -179,7 +206,7 @@ export const bestPostByEngLang = async (hours) => {
   let bestPost = null;
   let highestScore = 0;
 
-  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss") + ".000000Z";
+  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
 
   await get(recentPostsQuery)
     .then((snapshot) => {
@@ -187,27 +214,30 @@ export const bestPostByEngLang = async (hours) => {
         snapshot.forEach((childSnapshot) => {
           const post = childSnapshot.val();
           const postId = childSnapshot.key;
-          const likeListLength = Array.isArray(post.likeList)
-            ? post.likeList.length
-            : 0;
-          const commentCount = post.commentCount || 0;
-          const views = Array.isArray(post.viewsList)
-            ? post.viewsList.length
-            : 0;
-          const score = likeListLength * 100 + commentCount * 100 + views;
 
-          const postTime = moment(
-            post.createdAt,
-            "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
-          );
+          if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+            const likeListLength = Array.isArray(post.likeList)
+              ? post.likeList.length
+              : 0;
+            const commentCount = post.commentCount || 0;
+            const views = Array.isArray(post.viewsList)
+              ? post.viewsList.length
+              : 0;
+            const score = likeListLength * 100 + commentCount * 100 + views;
 
-          if (
-            score > highestScore ||
-            (score === highestScore && postTime.isAfter(latestTime))
-          ) {
-            highestScore = score;
-            bestPost = { ...post, id: postId };
-            latestTime = postTime;
+            const postTime = moment(
+              post.createdAt,
+              "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+            );
+
+            if (
+              score > highestScore ||
+              (score === highestScore && postTime.isAfter(latestTime))
+            ) {
+              highestScore = score;
+              bestPost = { ...post, id: postId };
+              latestTime = postTime;
+            }
           }
         });
       }
@@ -215,32 +245,48 @@ export const bestPostByEngLang = async (hours) => {
     .catch((error) => {
       console.error("Error fetching recent posts: ", error);
     });
-
   return bestPost;
 };
 
 export const restPostByVoice = async () => {
-  let response;
-  const currentUser = await getUserData();
-  const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
-  const recentPostsQuery = query(postsRef, orderByChild("createdAt"));
-  await get(recentPostsQuery)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const posts = snapshot.val();
-        const sortedPosts = Object.keys(posts)
-          .map((key) => ({ id: key, ...posts[key] }))
-          .filter((post) => post.createdAt !== undefined)
-          .reverse();
-        response = sortedPosts;
-      }
-    })
-    .catch((error) => {
-      console.error("Failed to fetch user data", error);
-      throw error;
-    });
+  try {
+    const currentUser = await getUserData();
+    if (!currentUser || !currentUser.wordslang) {
+      throw new Error("No current user or user wordslang found.");
+    }
 
-  return response;
+    const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
+    const recentPostsQuery = query(postsRef, orderByChild("createdAt"));
+
+    const snapshot = await get(recentPostsQuery);
+    if (!snapshot.exists()) {
+      return [];
+    }
+
+    const posts = snapshot.val();
+    const response = Object.entries(posts)
+      .map(([id, post]) => ({ id, ...post }))
+      .filter(
+        (post) =>
+          (post.createdAt !== undefined &&
+            post.Subject &&
+            post.Subject !== "1" &&
+            post.viewsList &&
+            post.viewsList !== null &&
+            !post.parentkey) ||
+          (post.parentKey &&
+            post.childkey !== null &&
+            post.viewsList.includes(currentUser.userId) &&
+            (!post.reportList ||
+              !post.reportList.includes(currentUser.userId) ||
+              post.reportList.length <= 6))
+      )
+      .reverse();
+
+    return response;
+  } catch (error) {
+    console.error("Failed to fetch user data", error);
+  }
 };
 
 export const uploadImageToStorage = async (imageFile) => {
@@ -253,7 +299,7 @@ export const uploadImageToStorage = async (imageFile) => {
 };
 
 export const uploadPostData = async (inputValue, userId, fileName) => {
-  const currentDateTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+  const currentDateTime = getTodayDate(0);
   try {
     let image;
     if (fileName !== "") {
@@ -277,14 +323,18 @@ export const uploadPostData = async (inputValue, userId, fileName) => {
         createdAt: currentDateTime,
         likeCount: 0,
         commentCount: 0,
-        lanCode: "",
+        retweetCount: 0,
+        Subject: "0",
+        parentkey: null,
+        childKey: null,
+        lanCode: userData.wordslang === "Arabic worlds" ? "ar" : "auto",
         user: {
           displayName: userData.displayName,
           isOnline: false,
           isVerified: false,
-          // profilePic: userData.profilePic,
           userName: userData.userName || "",
           userId: userId,
+          age: userData.age,
         },
       };
 
