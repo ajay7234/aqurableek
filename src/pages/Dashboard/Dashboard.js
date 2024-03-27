@@ -353,7 +353,7 @@ const Dashboard = () => {
                                     <Menu.Item>
                                       {({ active }) => (
                                         <CopyToClipboard
-                                          text="https://aqurableek.vercel.app/dashboard"
+                                          text="https://aqurableek-5rhg.vercel.app/dashboard"
                                           onCopy={handleCopySuccess}
                                         >
                                           <div
