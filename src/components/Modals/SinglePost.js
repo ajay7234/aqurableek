@@ -1,22 +1,49 @@
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Menu, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
 import { HiEye } from "react-icons/hi";
 import { IoMdShare } from "react-icons/io";
-import { IoClose } from "react-icons/io5";
+import { IoArrowBack, IoClose } from "react-icons/io5";
 import { MdMessage } from "react-icons/md";
-import { TiArrowUpOutline } from "react-icons/ti";
-import { updateLikeList } from "../../helper/fetchTweetData";
+import { TiArrowUpOutline, TiArrowUpThick } from "react-icons/ti";
 import ReplyTweet from "./ReplyTweet";
+import NotFound from "../../assets/Images/not-found.png";
+import ImageViewer from "./ImageViewer";
+import { getCurrentUserData } from "../../helper/userProfileData";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { FaLink } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { formatTimeDifference } from "../../helper/formateTiming";
 
-function SinglePost({ post, setPost, postData }) {
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function SinglePost({ post, setPost, postData, handleLike }) {
   const [tweet, setTweet] = useState(false);
   const [postId, setPostId] = useState("");
+  const [imageViewer, setImageViewer] = useState(false);
+  const [singlePost, setSinglePost] = useState({});
+  const [currentUser, setCurrentUser] = useState({});
+  const navigate = useNavigate();
 
-  useEffect(() => { }, [postData]);
+  const currentUserData = async () => {
+    const data = await getCurrentUserData();
+    setCurrentUser(data);
+  };
+  const handleCopySuccess = () => {
+    toast.success("Link copied to clipboard!");
+  };
+  useEffect(() => {
+    currentUserData();
+  }, [postData]);
 
-  const handleLike = async (postId) => {
-    await updateLikeList(postId);
-    setPost(false);
+  const handleNavigate = (item) => {
+    if (item.user.userId === currentUser.userId) {
+      navigate("/profile");
+    } else {
+      navigate("/user-profile/" + item.user.userId);
+    }
   };
 
   return (
@@ -36,7 +63,7 @@ function SinglePost({ post, setPost, postData }) {
           </Transition.Child>
 
           <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-            <div className="flex min-h-full justify-center p-4 text-center items-center sm:p-0">
+            <div className="flex min-h-full justify-center p-2 text-center items-center sm:p-0 w-full">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -46,11 +73,17 @@ function SinglePost({ post, setPost, postData }) {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-[560px]">
-                  <div className="flex justify-end p-[24px] pb-0">
+                <Dialog.Panel className="relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-[560px]">
+                  <div className="flex justify-between p-[18px] pb-[12px] border-b-[1px] border-b-[#aaa]">
+                    <div className="flex items-center gap-2">
+                      <IoArrowBack className="text-[#EF9595] sm:text-[24px] text-[20px]" />
+                      <h2 className="text-[20px] text-[#212121] font-light">
+                        Thread
+                      </h2>
+                    </div>
                     <button
                       onClick={() => setPost(false)}
-                      className="text-[#EF9595] text-[24px]"
+                      className="text-[#EF9595] sm:text-[24px] text-[20px]"
                     >
                       <IoClose />
                     </button>
@@ -58,28 +91,73 @@ function SinglePost({ post, setPost, postData }) {
                   <div className="sm:p-[20px] p-[14px] border-b-[#c0bbbb] border-b-[1px]">
                     <div className="flex items-start sm:gap-[20px] gap-[14px]">
                       <img
+                        onClick={() => handleNavigate(postData)}
                         src={postData?.user?.profilePic}
                         alt="user"
-                        className="sm:min-w-[50px] w-[40px] sm:h-[50px] h-[40px] rounded-full object-cover"
+                        className="sm:min-w-[50px] w-[40px] sm:h-[50px] h-[40px] rounded-full object-cover cursor-pointer"
                       />
                       <div>
-                        <h2 className="text-[18px] font-semibold">
+                        <h2
+                          className="text-[18px] font-semibold cursor-pointer"
+                          onClick={() => handleNavigate(postData)}
+                        >
                           {postData?.user?.displayName}
                         </h2>
-                        <p className="text-[#5c5c5c] font-medium text-[14px]">
-                          {postData?.user?.userName}
-                        </p>
+                        <div className="flex gap-[6px] items-center flex-wrap">
+                          <p
+                            className="text-[#5c5c5c] font-medium sm:text-[14px] text-[12px] cursor-pointer"
+                            onClick={() => handleNavigate(postData)}
+                          >
+                            {postData?.user?.userName}
+                          </p>
+                          <div className="w-[4px] h-[4px] rounded-full bg-[#a1a1a1]" />
+                          <p className="text-[12px] text-gray-500 whitespace-nowrap">
+                            {formatTimeDifference(postData?.createdAt)}
+                          </p>
+                        </div>
                         <p className="text-[#5c5c5c] text-[12px] mt-[10px]">
                           {postData?.description}
                         </p>
+                        <div className="flex sm:justify-start justify-end">
+                          {postData?.imagePath &&
+                          /\.(jpg|jpeg|png|svg)(?=\?alt=media)/i.test(
+                            postData.imagePath
+                          ) ? (
+                            <div
+                              className="max-w-[300px] w-full h-[170px] rounded-[10px] mt-[12px]"
+                              onClick={() => {
+                                setImageViewer(!imageViewer);
+                                setSinglePost(postData);
+                                setPost(!post);
+                              }}
+                            >
+                              <img
+                                className="w-full h-full object-cover rounded-[10px]"
+                                src={postData.imagePath}
+                                alt="postImage"
+                                onError={({ currentTarget }) => {
+                                  currentTarget.src = NotFound;
+                                  currentTarget.classList =
+                                    "opacity-60 rounded-[10px]";
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <></>
+                          )}
+                        </div>
                         <div className="flex gap-[24px] mt-[20px] flex-wrap">
                           <button
-                            className={`flex gap-[16px] text-[14px] `}
+                            className={`flex sm:gap-[16px] gap-[6px] text-[16px] items-center `}
                             onClick={() => handleLike(postData?.id)}
                           >
-                            <TiArrowUpOutline
-                              className={`text-[24px] text-[#5c5c5c]`}
-                            />
+                            {postData?.likeList?.includes(
+                              currentUser?.userId
+                            ) ? (
+                              <TiArrowUpThick className="sm:text-[24px] text-[20px] text-[green]" />
+                            ) : (
+                              <TiArrowUpOutline className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
+                            )}
                             {postData?.likeList?.length}
                           </button>
                           <button
@@ -88,19 +166,64 @@ function SinglePost({ post, setPost, postData }) {
                               setPostId(postData?.id);
                               setPost(false);
                             }}
-                            className="flex gap-[16px] text-[14px] text-[#5c5c5c]"
+                            className="flex sm:gap-[16px] gap-[6px] text-[14px] text-[#5c5c5c]"
                           >
-                            <MdMessage className="text-[24px] text-[#5c5c5c]" />
+                            <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                             {postData?.commentCount}
                           </button>
 
-                          <button className="flex gap-[16px] text-[14px]">
-                            <HiEye className="text-[24px] text-[#5c5c5c]" />
-                            {postData?.viewsList?.length}
+                          <button className="flex sm:gap-[16px] gap-[6px] text-[14px]">
+                            <HiEye className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
+                            {postData?.viewsList?.length * 3}
                           </button>
-                          <button className="text-[14px]">
-                            <IoMdShare className="text-[24px] text-[#5c5c5c]" />
-                          </button>
+                          {/* <button className="text-[14px]">
+                            <IoMdShare className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
+                          </button> */}
+                          <Menu
+                            as="div"
+                            className="relative inline-block text-left"
+                          >
+                            <div className="flex items-center">
+                              <Menu.Button className="text-[14px]">
+                                <IoMdShare className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
+                              </Menu.Button>
+                            </div>
+
+                            <Transition
+                              as={Fragment}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
+                            >
+                              <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <CopyToClipboard
+                                        text="https://aqurableek-5rhg.vercel.app/dashboard"
+                                        onCopy={handleCopySuccess}
+                                      >
+                                        <div
+                                          className={classNames(
+                                            active
+                                              ? "bg-gray-100 text-gray-900"
+                                              : "text-gray-700",
+                                            "px-4 py-2 text-sm flex gap-2 cursor-pointer"
+                                          )}
+                                        >
+                                          <FaLink className="text-[18px]" />
+                                          Share Link
+                                        </div>
+                                      </CopyToClipboard>
+                                    )}
+                                  </Menu.Item>
+                                </div>
+                              </Menu.Items>
+                            </Transition>
+                          </Menu>
                         </div>
                       </div>
                     </div>
@@ -112,6 +235,11 @@ function SinglePost({ post, setPost, postData }) {
         </Dialog>
       </Transition.Root>
       <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
+      <ImageViewer
+        imageViewer={imageViewer}
+        setImageViewer={setImageViewer}
+        postData={singlePost}
+      />
     </div>
   );
 }

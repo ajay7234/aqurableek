@@ -7,7 +7,7 @@ import {
   replyCommentData,
   singlePostData,
 } from "../../helper/fetchTweetData";
-import { getUserData } from "../../helper/userProfileData";
+import { getCurrentUserData } from "../../helper/userProfileData";
 import { AiOutlinePicture } from "react-icons/ai";
 
 const ReplyTweet = ({ tweet, setTweet, postId }) => {
@@ -23,7 +23,7 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
   };
 
   const getUserDetails = async () => {
-    const data = await getUserData();
+    const data = await getCurrentUserData();
     setUserData(data);
   };
 
@@ -62,7 +62,7 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
         </Transition.Child>
 
         <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-          <div className="flex min-h-full justify-center p-4 text-center items-center sm:p-0">
+          <div className="flex min-h-full justify-center p-2 text-center items-center sm:p-0 w-full">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -72,7 +72,7 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-[560px]">
+              <Dialog.Panel className="relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-[560px]">
                 <div>
                   <div className="">
                     <div className="p-6">
@@ -138,8 +138,7 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
                             className="placeholder:text-[#4d4d4d] outline-none w-full resize-none sm:text-[18px] text-[14px]"
                           />
                         </div>
-                        <div>
-                        </div>
+                        <div></div>
                         <div className="relative">
                           <div className="max-w-[360px] sm:h-[220px] h-[200px] ml-auto rounded-lg">
                             {upload && (

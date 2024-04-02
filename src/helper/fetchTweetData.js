@@ -7,47 +7,10 @@ import {
 } from "firebase/database";
 import "firebase/database";
 import { uploadImageToStorage } from "./filterTweetData";
-import { getUserData } from "./userProfileData";
+import { getCurrentUserData } from "./userProfileData";
 import moment from "moment";
 
 const database = getDatabase();
-
-export const updateLikeList = async (postId) => {
-  const userData = await getUserData();
-
-  const postRef = ref(database, `tweetVoice/${userData.wordslang}/${postId}`);
-  await get(postRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        updatePostLikeList(postRef, userData);
-      }
-    })
-    .catch((error) => {
-      console.error("Failed to fetch user data", error);
-    });
-
-  const endlishRef = ref(database, `tweetVoice/English worlds/${postId}`);
-  await get(endlishRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        updatePostLikeList(endlishRef, userData);
-      }
-    })
-    .catch((error) => {
-      console.error("Failed to fetch user data", error);
-    });
-
-  const countryRef = ref(database, `tweetVoice/${userData.country}/${postId}`);
-  await get(countryRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        updatePostLikeList(countryRef, userData);
-      }
-    })
-    .catch((error) => {
-      console.error("Failed to fetch user data", error);
-    });
-};
 
 const updatePostLikeList = (postRef, userData) => {
   runTransaction(postRef, (post) => {
@@ -67,10 +30,33 @@ const updatePostLikeList = (postRef, userData) => {
     }
     return post;
   })
-    .then((result) => {})
+    .then((snapshot) => {})
     .catch((error) => {
       console.error("Like status update failed: ", error);
     });
+};
+
+export const updateLikeList = async (postId) => {
+  const userData = await getCurrentUserData();
+  let response;
+  const paths = [
+    `tweetVoice/${userData.wordslang}/${postId}`,
+    `tweetVoice/English worlds/${postId}`,
+    `tweetVoice/${userData.country}/${postId}`,
+  ];
+
+  for (const path of paths) {
+    const postRef = ref(database, path);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await updatePostLikeList(postRef, userData);
+      const updatedSnapshot = await get(postRef);
+      if (updatedSnapshot.exists()) {
+        response = updatedSnapshot.val();
+      }
+    }
+  }
+  return response;
 };
 
 export const updateUserData = async (userDetails) => {
@@ -89,7 +75,7 @@ export const updateUserData = async (userDetails) => {
     image,
   } = userDetails;
 
-  const userData = await getUserData();
+  const userData = await getCurrentUserData();
   let imageUrl;
 
   if (image) {
@@ -129,7 +115,7 @@ export const createdDate = () => {
 };
 
 export const singlePostData = async (postId) => {
-  const userData = await getUserData();
+  const userData = await getCurrentUserData();
   if (!userData) {
     return null;
   }
@@ -164,7 +150,7 @@ export const replyCommentData = async (
   fileName
 ) => {
   try {
-    const userData = await getUserData();
+    const userData = await getCurrentUserData();
 
     await tryUpdatePost(
       `tweetVoice/${userData.wordslang}/${postId}`,
@@ -228,7 +214,7 @@ const tryUpdatePost = async (path, inputValue, createdAt, userId, fileName) => {
 };
 
 export const voiceData = async () => {
-  const userData = await getUserData();
+  const userData = await getCurrentUserData();
   let response;
   const postRef = ref(database, `tweetVoice/${userData.wordslang}`);
   await get(postRef)
@@ -242,3 +228,5 @@ export const voiceData = async () => {
     });
   return response;
 };
+
+export const updateViewList = async () => {};

@@ -5,7 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { AiOutlinePicture } from "react-icons/ai";
 import { uploadPostData } from "../../helper/filterTweetData";
 import { toast } from "react-toastify";
-import { getUserData } from "../../helper/userProfileData";
+import { getCurrentUserData } from "../../helper/userProfileData";
 import { useNavigate } from "react-router-dom";
 
 const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
@@ -28,7 +28,7 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
   };
 
   const getUserProfile = async () => {
-    const data = await getUserData();
+    const data = await getCurrentUserData();
     setUserData(data);
   };
 
@@ -70,7 +70,7 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
           </Transition.Child>
 
           <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-            <div className="flex min-h-full justify-center p-4 text-center items-center sm:p-0">
+            <div className="flex min-h-full justify-center p-2 text-center items-center sm:p-0 w-full">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -80,7 +80,7 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-[560px]">
+                <Dialog.Panel className="relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-[560px]">
                   <div>
                     <div className="p-6">
                       <div

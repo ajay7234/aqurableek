@@ -9,12 +9,13 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../Firebase/Firebase";
 import { get, getDatabase, ref } from "firebase/database";
 import { useAuth } from "../../AuthContext/AuthContext";
+import UserProfile from "../UserProfile/UserProfile";
 
 const Router = () => {
   const navigate = useNavigate();
   const { setCurrentUser, setUserData } = useAuth();
 
-  const getUserData = async (uid) => {
+  const getCurrentUserData = async (uid) => {
     const database = getDatabase();
     get(ref(database, `/profile/${uid}`))
       .then((snapshot) => {
@@ -31,7 +32,7 @@ const Router = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
-        getUserData(user.uid);
+        getCurrentUserData(user.uid);
       } else {
         if (!["/", "/signup", "/forget"].includes(window.location.pathname)) {
           navigate("/");
@@ -50,6 +51,7 @@ const Router = () => {
       <Route path="/forget" element={<Forget />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/user-profile/:id" element={<UserProfile />} />
     </Routes>
   );
 };

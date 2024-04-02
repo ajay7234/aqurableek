@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { MdFlag, MdMessage } from "react-icons/md";
+import { MdFlag, MdMessage, MdVerified } from "react-icons/md";
 import { TiArrowUpOutline } from "react-icons/ti";
 import { IoMdShare } from "react-icons/io";
 import { HiEye } from "react-icons/hi";
@@ -17,14 +17,16 @@ import user from "../../assets/Images/user.png";
 import NotFound from "../../assets/Images/not-found.png";
 import { updateLikeList, voiceData } from "../../helper/fetchTweetData";
 import { toast } from "react-toastify";
-import { getUserData } from "../../helper/userProfileData";
+import { getCurrentUserData } from "../../helper/userProfileData";
 import ReplyTweet from "../../components/Modals/ReplyTweet";
 import SinglePost from "../../components/Modals/SinglePost";
 import { TiArrowUpThick } from "react-icons/ti";
 import { Menu, Transition } from "@headlessui/react";
 import { FaLink } from "react-icons/fa6";
 import CopyToClipboard from "react-copy-to-clipboard";
-import moment from "moment";
+import ImageViewer from "../../components/Modals/ImageViewer";
+import { useNavigate } from "react-router-dom";
+import { formatTimeDifference } from "../../helper/formateTiming";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -42,6 +44,10 @@ const Dashboard = () => {
   const [singlePost, setSinglePost] = useState({});
   const [showMessage, setShowMessage] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [imageViewer, setImageViewer] = useState(false);
+  const [canUploadPost, setCanUploadPost] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchAllData = async () => {
     try {
@@ -86,6 +92,7 @@ const Dashboard = () => {
       const results = await Promise.all(dataPromises);
 
       const nonNullResults = results.flat().filter((item) => item !== null);
+
       const uniqueResults = Array.from(
         new Map(
           nonNullResults.map((item) => {
@@ -111,13 +118,13 @@ const Dashboard = () => {
   }, []);
 
   const getUserID = async () => {
-    const userData = await getUserData();
+    const userData = await getCurrentUserData();
     setUserId(userData?.userId);
   };
 
   const hasPostedUser = async () => {
     const sevenDaysAgo = getTodayDate(168);
-    const userData = await getUserData();
+    const userData = await getCurrentUserData();
     const tweetVoice = await voiceData();
     const sevenDaysData = Object.values(tweetVoice)?.filter(
       (postData) => postData.createdAt > sevenDaysAgo
@@ -142,26 +149,37 @@ const Dashboard = () => {
   const handleLike = async (postId) => {
     await updateLikeList(postId);
 
-    setFilterData((currentData) =>
-      currentData.map((post) => {
-        if (post?.id === postId) {
-          const isLiked = post.likeList?.includes(userId);
-          return {
-            ...post,
-            likeCount: isLiked ? post?.likeCount - 1 : post?.likeCount + 1,
-            likeList: isLiked
-              ? post?.likeList?.filter((id) => id !== userId)
-              : [...(post?.likeList || []), userId],
-          };
-        }
-        return post;
-      })
-    );
+    let updatedSinglePost = {};
+
+    const updatedData = filterData.map((post) => {
+      if (post?.id === postId) {
+        const isLiked = post.likeList?.includes(userId);
+        const updatedPost = {
+          ...post,
+          likeCount: isLiked ? post.likeCount - 1 : post.likeCount + 1,
+          likeList: isLiked
+            ? post.likeList.filter((id) => id !== userId)
+            : [...(post.likeList || []), userId],
+        };
+
+        updatedSinglePost = updatedPost;
+        setSinglePost(updatedPost);
+
+        return updatedPost;
+      }
+      return post;
+    });
+
+    setFilterData(updatedData);
   };
+
+  useEffect(() => {
+    hanldeCheckUserPost();
+  }, []);
 
   const hanldeCheckUserPost = async () => {
     try {
-      const userData = await getUserData();
+      const userData = await getCurrentUserData();
       const twentyFourHoursAgo = getTodayDate(24);
       const tweetVoiceData = await voiceData();
 
@@ -173,21 +191,24 @@ const Dashboard = () => {
       const hasUserPosted = postsInLast24Hours.some(
         (post) => post.userId === userData.userId
       );
-
-      if (hasUserPosted) {
-        toast.error("You can only post once in 24 hours");
-      } else {
-        setOpen(true);
-      }
+      setCanUploadPost(hasUserPosted);
     } catch (error) {
       console.error("An error occurred:", error);
+    }
+  };
+
+  const handleCheckPost = () => {
+    if (canUploadPost) {
+      toast.error("You can only post once in 24 hours");
+    } else {
+      setOpen(true);
     }
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowMessage(true);
-    }, 5000);
+    }, 7000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -195,33 +216,11 @@ const Dashboard = () => {
     toast.success("Link copied to clipboard!");
   };
 
-  const formatTimeDifference = (createdAt, name) => {
-    const postDate = moment.utc(createdAt);
-    const currentDate = moment.utc();
-
-    const duration = moment.duration(currentDate.diff(postDate));
-
-    const days = Math.floor(duration.asDays());
-    const hours = Math.floor(duration.asHours()) % 24;
-    const minutes = Math.floor(duration.asMinutes()) % 60;
-    const seconds = Math.floor(duration.asSeconds()) % 60;
-
-    if (days >= 1) {
-      if (days === 1) {
-        return "1 day ago";
-      } else if (days <= 2) {
-        return `${days} days ago`;
-      } else if (days <= 365) {
-        return postDate.format("MMMM DD");
-      } else {
-        return postDate.format("MMMM DD YYYY");
-      }
-    } else if (hours >= 1) {
-      return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-    } else if (minutes >= 1) {
-      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+  const handleNavigate = (item) => {
+    if (item.user.userId === userId) {
+      navigate("/profile");
     } else {
-      return `${seconds} ${seconds === 1 ? "second" : "seconds"} ago`;
+      navigate("/user-profile/" + item.user.userId);
     }
   };
 
@@ -250,31 +249,49 @@ const Dashboard = () => {
                 filterData?.map((item, i) => {
                   return (
                     <div
-                      className="sm:p-[20px] p-[8px] border-b-[#c0bbbb] border-b-[1px] flex items-start"
+                      className="sm:p-[20px] p-[8px] border-b-[#c0bbbb] border-b-[1px] flex sm:flex-nowrap flex-wrap items-start"
                       key={i}
                     >
                       <div className="flex items-start sm:gap-[20px] gap-[12px] w-full">
-                        <button
-                          onClick={() => {
-                            setPost(true);
-                            setSinglePost(item);
-                          }}
-                        >
+                        <div onClick={() => handleNavigate(item)}>
                           <img
                             src={item?.user?.profilePic || user}
                             alt="user"
                             className="sm:w-[50px] sm:min-w-[50px] w-[30px] min-w-[30px] sm:h-[50px] h-[30px] rounded-full object-cover"
                           />
-                        </button>
+                        </div>
                         <div className="w-full">
-                          <h2 className="text-[18px] font-semibold">
-                            {item?.user?.displayName}
-                          </h2>
-                          <p className="text-[#5c5c5c] font-medium text-[14px]">
-                            {item?.user?.userName}
-                          </p>
+                          <div className="flex items-center gap-1">
+                            <h2
+                              className="sm:text-[18px] text-[16px] font-semibold cursor-pointer"
+                              onClick={() => handleNavigate(item)}
+                            >
+                              {item?.user?.displayName}
+                            </h2>
+                            {item?.user?.isVerified && (
+                              <MdVerified className="text-[#ff6d51] text-[14px]" />
+                            )}
+                          </div>
+                          <div className="flex gap-[6px] items-center flex-wrap">
+                            <p
+                              onClick={() => handleNavigate(item)}
+                              className="text-[#5c5c5c] font-medium sm:text-[14px] text-[12px] cursor-pointer"
+                            >
+                              {item?.user?.userName}
+                            </p>
+                            <div className="w-[4px] h-[4px] rounded-full bg-[#a1a1a1] sm:hidden block" />
+                            <p className="text-[12px] text-gray-500 whitespace-nowrap sm:hidden block">
+                              {formatTimeDifference(item?.createdAt)}
+                            </p>
+                          </div>
 
-                          <p className="text-[#5c5c5c] text-[12px] mt-[10px] break-all">
+                          <p
+                            className="text-[#5c5c5c] sm:text-[16px] text-[14px] mt-[10px] break-all cursor-pointer"
+                            onClick={() => {
+                              setPost(true);
+                              setSinglePost(item);
+                            }}
+                          >
                             {item?.description}
                           </p>
                           <div className="flex sm:justify-start justify-end">
@@ -282,7 +299,13 @@ const Dashboard = () => {
                             /\.(jpg|jpeg|png|svg)(?=\?alt=media)/i.test(
                               item.imagePath
                             ) ? (
-                              <div className="max-w-[300px] w-full h-[170px] rounded-[10px] mt-[12px]">
+                              <div
+                                className="max-w-[300px] w-full h-[170px] rounded-[10px] mt-[12px]"
+                                onClick={() => {
+                                  setImageViewer(!imageViewer);
+                                  setSinglePost(item);
+                                }}
+                              >
                                 <img
                                   className="w-full h-full object-cover rounded-[10px]"
                                   src={item.imagePath}
@@ -299,15 +322,15 @@ const Dashboard = () => {
                             )}
                           </div>
 
-                          <div className="flex gap-[24px] mt-[20px] flex-wrap">
+                          <div className="flex items-center gap-[24px] mt-[20px] flex-wrap">
                             <button
-                              className={`flex gap-[16px] text-[14px] `}
+                              className={`flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center `}
                               onClick={() => handleLike(item?.id)}
                             >
                               {item?.likeList?.includes(userId) ? (
-                                <TiArrowUpThick className="text-[24px] text-[green]" />
+                                <TiArrowUpThick className="sm:text-[24px] text-[20px] text-[green]" />
                               ) : (
-                                <TiArrowUpOutline className="text-[24px] text-[#5c5c5c]" />
+                                <TiArrowUpOutline className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                               )}
                               {item?.likeList?.length}
                             </button>
@@ -316,26 +339,23 @@ const Dashboard = () => {
                                 setTweet(true);
                                 setPostId(item?.id);
                               }}
-                              className="flex gap-[16px] text-[14px]"
+                              className="flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center"
                             >
-                              <MdMessage className="text-[24px] text-[#5c5c5c]" />
+                              <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                               {item?.commentCount}
                             </button>
 
-                            <button className="flex gap-[16px] text-[14px]">
-                              <HiEye className="text-[24px] text-[#5c5c5c]" />
+                            <button className="flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center">
+                              <HiEye className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                               {item?.viewsList && item?.viewsList?.length * 3}
                             </button>
-                            {/* <button className="text-[14px]">
-                              <IoMdShare className="text-[24px] text-[#5c5c5c]" />
-                            </button> */}
                             <Menu
                               as="div"
                               className="relative inline-block text-left"
                             >
-                              <div>
+                              <div className="flex items-center">
                                 <Menu.Button className="text-[14px]">
-                                  <IoMdShare className="text-[24px] text-[#5c5c5c]" />
+                                  <IoMdShare className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                                 </Menu.Button>
                               </div>
 
@@ -377,11 +397,8 @@ const Dashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <p className="text-[12px] text-gray-500 whitespace-nowrap">
-                        {formatTimeDifference(
-                          item?.createdAt,
-                          item?.user?.displayName
-                        )}
+                      <p className="text-[12px] text-gray-500 whitespace-nowrap sm:mt-0 mt-2 sm:block hidden">
+                        {formatTimeDifference(item?.createdAt)}
                       </p>
                     </div>
                   );
@@ -398,30 +415,38 @@ const Dashboard = () => {
               <div className="fixed right-[30px] bottom-[30px]">
                 <button
                   onClick={() => {
-                    hanldeCheckUserPost();
+                    handleCheckPost();
                   }}
                   className="bg-[#EF9595] text-[#212121] w-[50px] h-[50px] rounded-md flex justify-center items-center"
                 >
                   <MdFlag className="text-[30px]" />
                 </button>
-                <CreateTweet
-                  open={open}
-                  setOpen={setOpen}
-                  showCloseBtn={true}
-                  userId={userId}
-                  isSignup={false}
-                />
-                <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
-                <SinglePost
-                  post={post}
-                  setPost={setPost}
-                  postData={singlePost}
-                />
               </div>
             </div>
           )}
         </div>
       </div>
+      <CreateTweet
+        open={open}
+        setOpen={setOpen}
+        showCloseBtn={true}
+        userId={userId}
+        isSignup={false}
+      />
+      <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
+      <SinglePost
+        post={post}
+        setPost={setPost}
+        postData={singlePost}
+        setPostData={setSinglePost}
+        handleLike={handleLike}
+      />
+      <ImageViewer
+        imageViewer={imageViewer}
+        setImageViewer={setImageViewer}
+        postData={singlePost}
+        handleLike={handleLike}
+      />
     </div>
   );
 };

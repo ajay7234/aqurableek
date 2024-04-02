@@ -9,16 +9,27 @@ import { HiOutlineLightBulb } from "react-icons/hi";
 import { MdOutlineClose } from "react-icons/md";
 import { FiMenu } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
-import { getUserData } from "../../helper/userProfileData";
+import { getCurrentUserData } from "../../helper/userProfileData";
 import { auth } from "../../Firebase/Firebase";
+import moment from "moment";
+import Followers from "../Modals/Followers";
+import Following from "../Modals/Following";
+import {
+  findFollowerList,
+  findFollowingList,
+} from "../../helper/userFollowList";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const [mobileSidebar, setMobileSidebar] = useState(false);
   const [userData, setUserData] = useState({});
   const navigate = useNavigate();
+  const [followers, setFollowers] = useState(false);
+  const [following, setFollowing] = useState(false);
+  const [followerUsers, setFollowerUsers] = useState([]);
+  const [followingUsers, setFollowingUsers] = useState([]);
 
   const getUserProfile = async () => {
-    const data = await getUserData();
+    const data = await getCurrentUserData();
     setUserData(data);
   };
 
@@ -36,6 +47,18 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         console.log(error);
       });
   };
+
+  const fetchFollowersList = async () => {
+    const followerData = await findFollowerList(userData.followerList);
+    setFollowerUsers(followerData);
+
+    const followingData = await findFollowingList(userData.followingList);
+    setFollowingUsers(followingData);
+  };
+
+  useEffect(() => {
+    fetchFollowersList();
+  }, [userData]);
   return (
     <>
       <div>
@@ -109,7 +132,31 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                             {userData?.userName || "@johndeo28842"}
                           </p>
                         </div>
-                        <div></div>
+                        <div className="flex items-center gap-[12px]">
+                          <BsCalendar3 className="text-[#626161] text-[14px]" />
+                          <p className="text-[#626161] text-[14px]">
+                            Joined{" "}
+                            {moment(userData.createdAt).format("MMMM YYYY")}
+                          </p>
+                        </div>
+                        <div className="flex gap-[30px] mt-4">
+                          <div
+                            className="flex gap-2"
+                            onClick={() => setFollowers(!followers)}
+                          >
+                            <h2>{userData?.followerList?.length || 0}</h2>
+                            <button className="text-[#626161]">Follwers</button>
+                          </div>
+                          <div
+                            className="flex gap-2"
+                            onClick={() => setFollowing(!following)}
+                          >
+                            <h2>{userData?.followingList?.length || 0}</h2>
+                            <button className="text-[#626161]">
+                              Following
+                            </button>
+                          </div>
+                        </div>
                       </div>
                       <div className="mt-[10px] border-b-[#626161] border-b-[1px] pb-[10px]">
                         <Link
@@ -137,6 +184,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         <div className="p-[14px_20px] flex gap-[20px] items-center bg-white hover:bg-[#e3e3e3] cursor-pointer opacity-40">
                           <BsLightning className="text-[#979797] text-[20px] w-[22px]" />
                           <p className="text-[#212121] text-[18px]">Moments</p>
+                          =3.^XCD5e$,E!mD
                         </div>
                       </div>
                       <div className="border-b-[#626161] border-b-[1px] py-[10px]">
@@ -191,17 +239,23 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                     <div className="flex items-center gap-[12px]">
                       <BsCalendar3 className="text-[#626161] text-[14px]" />
                       <p className="text-[#626161] text-[14px]">
-                        Joined March 2024
+                        Joined {moment(userData.createdAt).format("MMMM YYYY")}
                       </p>
                     </div>
                     <div className="flex gap-[30px] mt-4">
-                      <div className="flex gap-2">
-                        <h2>0</h2>
-                        <p className="text-[#626161]">Follwers</p>
+                      <div
+                        className="flex gap-2"
+                        onClick={() => setFollowers(!followers)}
+                      >
+                        <h2>{userData?.followerList?.length || 0}</h2>
+                        <button className="text-[#626161]">Follwers</button>
                       </div>
-                      <div className="flex gap-2">
-                        <h2>0</h2>
-                        <p className="text-[#626161]">Follwers</p>
+                      <div
+                        className="flex gap-2"
+                        onClick={() => setFollowing(!following)}
+                      >
+                        <h2>{userData?.followingList?.length || 0}</h2>
+                        <button className="text-[#626161]">Following</button>
                       </div>
                     </div>
                   </div>
@@ -286,6 +340,23 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           </div>
         </div>
       </div>
+
+      {userData.followers > 0 && (
+        <Followers
+          followers={followers}
+          setFollowers={setFollowers}
+          followerUsers={followerUsers}
+          setFollowerUsers={setFollowerUsers}
+        />
+      )}
+      {userData.following > 0 && (
+        <Following
+          following={following}
+          setFollowing={setFollowing}
+          followingUsers={followingUsers}
+          setFollowingUsers={setFollowingUsers}
+        />
+      )}
     </>
   );
 }
