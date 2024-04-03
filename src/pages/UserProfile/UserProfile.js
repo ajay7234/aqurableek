@@ -50,6 +50,7 @@ const UserProfile = () => {
   const [followerUsers, setFollowerUsers] = useState([]);
   const [followingUsers, setFollowingUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadSidebar, setLoadSidebar] = useState(false);
 
   const params = useParams();
 
@@ -75,11 +76,10 @@ const UserProfile = () => {
 
   useEffect(() => {
     getUserProfile();
-  }, []);
+  }, [followers, following]);
 
   useEffect(() => {
     currentUserData();
-    console.log("sidebar", isLoading);
   }, []);
 
   const handleLike = async (postId) => {
@@ -122,13 +122,22 @@ const UserProfile = () => {
   const handleUpdateFollowList = async () => {
     await toggleFollowUser(currentUser.userId, userData.userId);
     getUserProfile();
+    setLoadSidebar(!loadSidebar);
   };
+
+  useEffect(() => {
+    setLoadSidebar(!loadSidebar);
+  }, [followers, following]);
 
   return (
     <div>
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      {!isLoading ? (
-        <div className={!sidebarOpen ? "lg:pl-72" : ""}>
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        loadSidebar={loadSidebar}
+      />
+      <div className={!sidebarOpen ? "lg:pl-72" : ""}>
+        {!isLoading ? (
           <div className="max-w-[1000px] mx-auto p-[20px]">
             <div className="shadow-[rgba(0,0,0,0.2)_0px_1px_10px]">
               <div className="relative">
@@ -381,38 +390,39 @@ const UserProfile = () => {
               </div>
             )}
           </div>
-          <ImageViewer
-            imageViewer={imageViewer}
-            setImageViewer={setImageViewer}
-            postData={singlePost}
-            handleLike={handleLike}
-          />
-          <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
-          <SinglePost
-            post={post}
-            setPost={setPost}
-            postData={singlePost}
-            handleLike={handleLike}
-          />
-          {userData.followers > 0 && (
-            <Followers
-              followers={followers}
-              setFollowers={setFollowers}
-              followerUsers={followerUsers}
-              setFollowerUsers={setFollowerUsers}
-            />
-          )}
-          {userData.following > 0 && (
-            <Following
-              following={following}
-              setFollowing={setFollowing}
-              followingUsers={followingUsers}
-              setFollowingUsers={setFollowingUsers}
-            />
-          )}
-        </div>
-      ) : (
-        <Loader />
+        ) : (
+          <Loader />
+        )}
+      </div>
+
+      <ImageViewer
+        imageViewer={imageViewer}
+        setImageViewer={setImageViewer}
+        postData={singlePost}
+        handleLike={handleLike}
+      />
+      <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
+      <SinglePost
+        post={post}
+        setPost={setPost}
+        postData={singlePost}
+        handleLike={handleLike}
+      />
+      {userData.followers > 0 && (
+        <Followers
+          followers={followers}
+          setFollowers={setFollowers}
+          followerUsers={followerUsers}
+          setFollowerUsers={setFollowerUsers}
+        />
+      )}
+      {userData.following > 0 && (
+        <Following
+          following={following}
+          setFollowing={setFollowing}
+          followingUsers={followingUsers}
+          setFollowingUsers={setFollowingUsers}
+        />
       )}
     </div>
   );

@@ -19,7 +19,7 @@ import {
   findFollowingList,
 } from "../../helper/userFollowList";
 
-export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
+export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
   const [mobileSidebar, setMobileSidebar] = useState(false);
   const [userData, setUserData] = useState({});
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
 
   useEffect(() => {
     getUserProfile();
-  }, []);
+  }, [loadSidebar, followers, following]);
 
   const handleLogOut = () => {
     auth
@@ -58,7 +58,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
 
   useEffect(() => {
     fetchFollowersList();
-  }, [userData]);
+  }, [userData, loadSidebar]);
   return (
     <>
       <div>

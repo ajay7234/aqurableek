@@ -47,6 +47,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [imageViewer, setImageViewer] = useState(false);
   const [canUploadPost, setCanUploadPost] = useState(false);
+  const [loadSidebar, setLoadSidebar] = useState(false);
 
   const navigate = useNavigate();
 
@@ -137,6 +138,8 @@ const Dashboard = () => {
 
       if (hasUserPosted) {
         setCanSeePost(true);
+      } else {
+        setShowMessage(true);
       }
     }
   };
@@ -206,12 +209,12 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowMessage(true);
-    }, 7000);
-    return () => clearTimeout(timer);
-  }, []);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowMessage(true);
+  //   }, 7000);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const handleCopySuccess = () => {
     toast.success("Link copied to clipboard!");
@@ -227,11 +230,15 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        loadSidebar={loadSidebar}
+      />
       <div className={!sidebarOpen ? "lg:pl-72" : ""}>
         <div className="p-[20px]">
           {loading ? (
-          <Loader/>
+            <Loader />
           ) : (
             <div
               className={

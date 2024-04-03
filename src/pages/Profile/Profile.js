@@ -54,6 +54,7 @@ const Profile = () => {
   const [tweet, setTweet] = useState(false);
   const [postId, setPostId] = useState("");
   const [imageViewer, setImageViewer] = useState(false);
+  const [loadSidebar, setLoadSidebar] = useState(false);
   const [Input, setInput] = useState({
     firstName: "",
     lastName: "",
@@ -199,7 +200,11 @@ const Profile = () => {
 
   return (
     <div>
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        loadSidebar={loadSidebar}
+      />
       <div className={!sidebarOpen ? "lg:pl-72" : ""}>
         <div className="p-[20px]">
           <div className="flex justify-center items-center">
