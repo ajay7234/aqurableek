@@ -158,7 +158,7 @@ function SinglePost({ post, setPost, postData, handleLike }) {
                             ) : (
                               <TiArrowUpOutline className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                             )}
-                            {postData?.likeList?.length}
+                            {postData?.likeList?.length || 0}
                           </button>
                           <button
                             onClick={() => {
@@ -169,7 +169,7 @@ function SinglePost({ post, setPost, postData, handleLike }) {
                             className="flex sm:gap-[16px] gap-[6px] text-[14px] text-[#5c5c5c]"
                           >
                             <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
-                            {postData?.commentCount}
+                            {postData?.commentCount || 0}
                           </button>
 
                           <button className="flex sm:gap-[16px] gap-[6px] text-[14px]">

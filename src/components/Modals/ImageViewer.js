@@ -3,7 +3,7 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { TiArrowUpOutline, TiArrowUpThick } from "react-icons/ti";
 import { MdKeyboardBackspace, MdMessage } from "react-icons/md";
 import { HiEye } from "react-icons/hi";
-import { IoMdShare } from "react-icons/io"
+import { IoMdShare } from "react-icons/io";
 import ReplyTweet from "./ReplyTweet";
 import { getCurrentUserData } from "../../helper/userProfileData";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -93,7 +93,7 @@ const ImageViewer = ({ imageViewer, setImageViewer, postData, handleLike }) => {
                         ) : (
                           <TiArrowUpOutline className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                         )}
-                        {postData?.likeList?.length}
+                        {postData?.likeList?.length || 0}
                       </button>
                       <button
                         onClick={() => {
@@ -104,7 +104,7 @@ const ImageViewer = ({ imageViewer, setImageViewer, postData, handleLike }) => {
                         className="flex  sm:gap-[16px] gap-[6px] text-[14px]"
                       >
                         <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
-                        {postData?.commentCount}
+                        {postData?.commentCount || 0}
                       </button>
 
                       <button className="flex  sm:gap-[16px] gap-[6px] text-[14px]">

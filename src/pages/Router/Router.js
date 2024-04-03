@@ -4,16 +4,24 @@ import Forget from "../Forget/Forget";
 import Profile from "../Profile/Profile";
 import Dashboard from "../Dashboard/Dashboard";
 import React, { useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../Firebase/Firebase";
 import { get, getDatabase, ref } from "firebase/database";
 import { useAuth } from "../../AuthContext/AuthContext";
 import UserProfile from "../UserProfile/UserProfile";
+import ProtectedRoute from "../../protectedRoute/ProtectedRoute";
+import Loader from "../../components/Loader/Loader";
+
+const AuthRedirect = () => {
+  const { currentUser } = useAuth();
+
+  return currentUser ? <Navigate to="/dashboard" replace={true} /> : <Outlet />;
+};
 
 const Router = () => {
   const navigate = useNavigate();
-  const { setCurrentUser, setUserData } = useAuth();
+  const { setCurrentUser, setUserData, loading, setLoading } = useAuth();
 
   const getCurrentUserData = async (uid) => {
     const database = getDatabase();
@@ -29,10 +37,19 @@ const Router = () => {
   };
 
   useEffect(() => {
+    if (loading) {
+      return () => {
+        <Loader />;
+      };
+    }
+  }, [loading]);
+
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
         getCurrentUserData(user.uid);
+        setLoading(false);
       } else {
         if (!["/", "/signup", "/forget"].includes(window.location.pathname)) {
           navigate("/");
@@ -46,12 +63,26 @@ const Router = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      {/* <Route path="/" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forget" element={<Forget />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/user-profile/:id" element={<UserProfile />} />
+      <Route path="/user-profile/:id" element={<UserProfile />} /> */}
+
+      <Route element={<AuthRedirect />}>
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/forget" element={<Forget />} />
+      </Route>
+
+      {!loading && (
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/user-profile/:id" element={<UserProfile />} />
+        </Route>
+      )}
     </Routes>
   );
 };

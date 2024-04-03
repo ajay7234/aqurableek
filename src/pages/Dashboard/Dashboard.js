@@ -27,6 +27,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import ImageViewer from "../../components/Modals/ImageViewer";
 import { useNavigate } from "react-router-dom";
 import { formatTimeDifference } from "../../helper/formateTiming";
+import Loader from "../../components/Loader/Loader";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -230,13 +231,7 @@ const Dashboard = () => {
       <div className={!sidebarOpen ? "lg:pl-72" : ""}>
         <div className="p-[20px]">
           {loading ? (
-            <>
-              <div className=" h-[calc(100vh-104px)] flex justify-center items-center">
-                <div className="box">
-                  <div className="loader-13"></div>
-                </div>
-              </div>
-            </>
+          <Loader/>
           ) : (
             <div
               className={
@@ -332,7 +327,7 @@ const Dashboard = () => {
                               ) : (
                                 <TiArrowUpOutline className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                               )}
-                              {item?.likeList?.length}
+                              {item?.likeList?.length || 0}
                             </button>
                             <button
                               onClick={() => {
@@ -342,7 +337,7 @@ const Dashboard = () => {
                               className="flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center"
                             >
                               <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
-                              {item?.commentCount}
+                              {item?.commentCount || 0}
                             </button>
 
                             <button className="flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center">
