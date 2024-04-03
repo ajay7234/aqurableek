@@ -37,39 +37,28 @@ const Router = () => {
   };
 
   useEffect(() => {
-    if (loading) {
-      return () => {
-        <Loader />;
-      };
-    }
-  }, [loading]);
-
-  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
         getCurrentUserData(user.uid);
-        setLoading(false);
       } else {
         if (!["/", "/signup", "/forget"].includes(window.location.pathname)) {
           navigate("/");
         }
         setCurrentUser(null);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [navigate, setCurrentUser, setUserData]);
+  }, [navigate, setCurrentUser, setUserData, loading]);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Routes>
-      {/* <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/forget" element={<Forget />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/user-profile/:id" element={<UserProfile />} /> */}
-
       <Route element={<AuthRedirect />}>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
