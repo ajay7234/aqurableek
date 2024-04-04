@@ -555,10 +555,10 @@ const Profile = () => {
                               </button>
                               <button
                                 className="flex  sm:gap-[16px] gap-[6px] text-[16px] items-center"
-                                onClick={() => {
-                                  setTweet(true);
-                                  setPostId(item?.id);
-                                }}
+                                // onClick={() => {
+                                //   setTweet(true);
+                                //   setPostId(item?.id);
+                                // }}
                               >
                                 <MdMessage className="text-[24px] text-[#5c5c5c]" />
 

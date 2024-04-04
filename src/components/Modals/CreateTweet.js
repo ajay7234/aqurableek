@@ -123,7 +123,7 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
                               placeholder={
                                 isSignup
                                   ? "Please enter your first message/word to the world using your language (17 to 170 characters)\n"
-                                  : "What's happening?"
+                                  : "Your Risala/Kalima // Message/Word to the world"
                               }
                               className="placeholder:text-[#4d4d4d] outline-none w-full resize-none text-[14px] pb-[20px]"
                             />

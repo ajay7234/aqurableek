@@ -26,8 +26,489 @@ export const getTodayDate = (hours) => {
   return formattedDate;
 };
 
+// export const bestPostByVoice = async (hours) => {
+//   const todayDate = getTodayDate(hours);
+//   const currentUser = await getCurrentUserData();
+//   const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
+//   const recentPostsQuery = query(
+//     postsRef,
+//     orderByChild("createdAt"),
+//     startAt(todayDate)
+//   );
+
+//   let bestPost = null;
+//   let highestScore = 0;
+//   let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+//   await get(recentPostsQuery)
+//     .then(async (snapshot) => {
+//       if (snapshot.exists()) {
+//         snapshot.forEach((childSnapshot) => {
+//           const post = childSnapshot.val();
+//           const postId = childSnapshot.key;
+
+//           if (!selectedPostIds.includes(postId) && selectedPostIds.length >= 0) {
+//             if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+//               const likeListLength = Array.isArray(post.likeList)
+//                 ? post.likeList.length
+//                 : 0;
+//               const commentCount = post.commentCount || 0;
+//               const views = Array.isArray(post.viewsList)
+//                 ? post.viewsList.length
+//                 : 0;
+//               const score = likeListLength * 100 + commentCount * 10 + views;
+
+//               const postTime = moment.utc(
+//                 post.createdAt,
+//                 "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+//               );
+//               if (
+//                 (post.Subject &&
+//                   (post.Subject !== null || post.Subject !== "1") &&
+//                   post.viewsList &&
+//                   post.viewsList !== null &&
+//                   post.viewsList.includes(currentUser.userId) &&
+//                   (!post.reportList ||
+//                     (!post.reportList.includes(currentUser.userId) &&
+//                       post.reportList.length <= 6)) &&
+//                   score > highestScore) ||
+//                 (score === highestScore && postTime.isAfter(latestTime))
+//               ) {
+//                 highestScore = score;
+//                 bestPost = { ...post, id: postId };
+//                 selectedPostIds.push(bestPost.id);
+//                 latestTime = postTime;
+//               }
+//             }
+//           }
+//         })
+//         if (
+//           bestPost &&
+//           currentUser.userId &&
+//           (!bestPost.viewsList ||
+//             !bestPost.viewsList.includes(currentUser.userId))
+//         ) {
+
+//           const postRef = ref(
+//             database,
+//             `/tweetVoice/${currentUser.wordslang}/${bestPost.id}`
+//           );
+//           let updatedViewsList = bestPost.viewsList
+//             ? [...bestPost.viewsList, currentUser.userId]
+//             : [currentUser.userId];
+
+//           await update(postRef, { viewsList: updatedViewsList })
+//             .then(() => { })
+//             .catch((error) =>
+//               console.error("Failed to update post viewsList", error)
+//             );
+//         }
+
+
+//       }
+
+//     })
+//     .catch((error) => {
+//       console.error("Error fetching recent posts: ", error);
+//     });
+
+//   return bestPost;
+// };
+
+// export const bestPostByVoice = () => {
+//   const selectedPostIds = [];
+//   console.log("selectedPostIds======", selectedPostIds);
+//   return async (hours) => {
+//     const todayDate = getTodayDate(hours);
+//     const currentUser = await getCurrentUserData();
+//     const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
+//     const recentPostsQuery = query(
+//       postsRef,
+//       orderByChild("createdAt"),
+//       startAt(todayDate)
+//     );
+
+//     let bestPost = null;
+//     let highestScore = 0;
+//     let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+//     await get(recentPostsQuery)
+//       .then(async (snapshot) => {
+//         if (snapshot.exists()) {
+//           snapshot.forEach((childSnapshot) => {
+//             const post = childSnapshot.val();
+//             const postId = childSnapshot.key;
+
+//             if (!selectedPostIds.includes(postId) && selectedPostIds.length >= 0) {
+//               if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+//                 const likeListLength = Array.isArray(post.likeList)
+//                   ? post.likeList.length
+//                   : 0;
+//                 const commentCount = post.commentCount || 0;
+//                 const views = Array.isArray(post.viewsList)
+//                   ? post.viewsList.length
+//                   : 0;
+//                 const score = likeListLength * 100 + commentCount * 10 + views;
+
+//                 const postTime = moment.utc(
+//                   post.createdAt,
+//                   "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+//                 );
+//                 if (
+//                   (post.Subject &&
+//                     (post.Subject !== null || post.Subject !== "1") &&
+//                     post.viewsList &&
+//                     post.viewsList !== null &&
+//                     post.viewsList.includes(currentUser.userId) &&
+//                     (!post.reportList ||
+//                       (!post.reportList.includes(currentUser.userId) &&
+//                         post.reportList.length <= 6)) &&
+//                     score > highestScore) ||
+//                   (score === highestScore && postTime.isAfter(latestTime))
+//                 ) {
+//                   highestScore = score;
+//                   bestPost = { ...post, id: postId };
+//                   selectedPostIds.push(bestPost.id);
+//                   latestTime = postTime;
+//                 }
+//               }
+//             }
+//           })
+//           if (
+//             bestPost &&
+//             currentUser.userId &&
+//             (!bestPost.viewsList ||
+//               !bestPost.viewsList.includes(currentUser.userId))
+//           ) {
+
+//             const postRef = ref(
+//               database,
+//               `/tweetVoice/${currentUser.wordslang}/${bestPost.id}`
+//             );
+//             let updatedViewsList = bestPost.viewsList
+//               ? [...bestPost.viewsList, currentUser.userId]
+//               : [currentUser.userId];
+
+//             await update(postRef, { viewsList: updatedViewsList })
+//               .then(() => { })
+//               .catch((error) =>
+//                 console.error("Failed to update post viewsList", error)
+//               );
+//           }
+
+
+//         }
+
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching recent posts: ", error);
+//       });
+
+//     return bestPost;
+//   }
+// }
+
+// export const bestPostByCountry = () => {
+//   const selectedPostIds = []
+//   return async (hours) => {
+//     const todayDate = getTodayDate(hours);
+//     const currentUser = await getCurrentUserData();
+//     const postsRef = ref(database, `/tweetCountry/${currentUser.country}`);
+//     const recentPostsQuery = query(
+//       postsRef,
+//       orderByChild("createdAt"),
+//       startAt(todayDate)
+//     );
+//     let bestPost = null;
+//     let highestScore = 0;
+//     let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+
+//     await get(recentPostsQuery)
+//       .then(async (snapshot) => {
+//         if (snapshot.exists()) {
+//           snapshot.forEach((childSnapshot) => {
+//             const post = childSnapshot.val();
+
+//             const postId = childSnapshot.key;
+//             if (!selectedPostIds.includes(postId) && selectedPostIds.length >= 0) {
+//               if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+//                 const likeListLength = Array.isArray(post.likeList)
+//                   ? post.likeList.length
+//                   : 0;
+//                 const commentCount = post.commentCount || 0;
+//                 const views = Array.isArray(post.viewsList)
+//                   ? post.viewsList.length
+//                   : 0;
+//                 const score = likeListLength * 100 + commentCount * 10 + views;
+
+//                 const postTime = moment.utc(
+//                   post.createdAt,
+//                   "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+//                 );
+
+//                 if (
+//                   (post.Subject &&
+//                     post.Subject !== null &&
+//                     post.Subject !== "1" &&
+//                     post.viewsList !== null &&
+//                     post.viewsList.includes(currentUser.userId) &&
+//                     (!post.reportList ||
+//                       (!post.reportList.includes(currentUser.userId) &&
+//                         post.reportList.length <= 6)) &&
+//                     score > highestScore) ||
+//                   (score === highestScore && postTime.isAfter(latestTime))
+//                 ) {
+//                   highestScore = score;
+//                   bestPost = { ...post, id: postId };
+//                   selectedPostIds.push(bestPost.id);
+//                   latestTime = postTime;
+//                 }
+//               }
+//             }
+//           });
+
+//           if (
+//             bestPost &&
+//             currentUser.userId &&
+//             (!bestPost.viewsList ||
+//               !bestPost.viewsList.includes(currentUser.userId))
+//           ) {
+//             const postRef = ref(
+//               database,
+//               `/tweetCountry/${currentUser.country}/${bestPost.id}`
+//             );
+//             let updatedViewsList = bestPost.viewsList
+//               ? [...bestPost.viewsList, currentUser.userId]
+//               : [currentUser.userId];
+
+//             await update(postRef, { viewsList: updatedViewsList })
+//               .then(() => { })
+//               .catch((error) =>
+//                 console.error("Failed to update post viewsList", error)
+//               );
+//           }
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching recent posts: ", error);
+//       });
+
+//     return bestPost;
+//   }
+// }
+
+// export const bestPostByCountry = async (hours) => {
+//   const todayDate = getTodayDate(hours);
+//   const currentUser = await getCurrentUserData();
+//   const postsRef = ref(database, `/tweetCountry/${currentUser.country}`);
+//   const recentPostsQuery = query(
+//     postsRef,
+//     orderByChild("createdAt"),
+//     startAt(todayDate)
+//   );
+//   let bestPost = null;
+//   let highestScore = 0;
+//   let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+
+//   await get(recentPostsQuery)
+//     .then(async (snapshot) => {
+//       if (snapshot.exists()) {
+//         snapshot.forEach((childSnapshot) => {
+//           const post = childSnapshot.val();
+
+//           const postId = childSnapshot.key;
+
+//           if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+//             const likeListLength = Array.isArray(post.likeList)
+//               ? post.likeList.length
+//               : 0;
+//             const commentCount = post.commentCount || 0;
+//             const views = Array.isArray(post.viewsList)
+//               ? post.viewsList.length
+//               : 0;
+//             const score = likeListLength * 100 + commentCount * 10 + views;
+
+//             const postTime = moment.utc(
+//               post.createdAt,
+//               "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
+//             );
+
+//             if (
+//               (post.Subject &&
+//                 post.Subject !== null &&
+//                 post.Subject !== "1" &&
+//                 post.viewsList !== null &&
+//                 post.viewsList.includes(currentUser.userId) &&
+//                 (!post.reportList ||
+//                   (!post.reportList.includes(currentUser.userId) &&
+//                     post.reportList.length <= 6)) &&
+//                 score > highestScore) ||
+//               (score === highestScore && postTime.isAfter(latestTime))
+//             ) {
+//               highestScore = score;
+//               bestPost = { ...post, id: postId };
+//               latestTime = postTime;
+//             }
+//           }
+//         });
+
+//         if (
+//           bestPost &&
+//           currentUser.userId &&
+//           (!bestPost.viewsList ||
+//             !bestPost.viewsList.includes(currentUser.userId))
+//         ) {
+//           const postRef = ref(
+//             database,
+//             `/tweetCountry/${currentUser.country}/${bestPost.id}`
+//           );
+//           let updatedViewsList = bestPost.viewsList
+//             ? [...bestPost.viewsList, currentUser.userId]
+//             : [currentUser.userId];
+
+//           await update(postRef, { viewsList: updatedViewsList })
+//             .then(() => { })
+//             .catch((error) =>
+//               console.error("Failed to update post viewsList", error)
+//             );
+//         }
+//       }
+//     })
+//     .catch((error) => {
+//       console.error("Error fetching recent posts: ", error);
+//     });
+
+//   return bestPost;
+// };
+
+const getBestPost = async (postsRef, currentUser, selectedPostIds, hours, collection) => {
+  const todayDate = getTodayDate(hours);
+  const recentPostsQuery = query(
+    postsRef,
+    orderByChild("createdAt"),
+    startAt(todayDate)
+  );
+
+  let bestPost = null;
+  let highestScore = 0;
+  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+
+  try {
+    const snapshot = await get(recentPostsQuery);
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+
+        if (!selectedPostIds.includes(postId)) {
+          const postScore = calculateScore(post);
+          const postTime = moment.utc(post.createdAt, "YYYY-MM-DD HH:mm:ss.SSSSSSZ");
+
+          if (isBetterPost(post, postScore, postTime, currentUser, highestScore, latestTime)) {
+            highestScore = postScore;
+            bestPost = { ...post, id: postId };
+            selectedPostIds.push(bestPost.id);
+            latestTime = postTime;
+          }
+        }
+      });
+
+      await updateViewsList(bestPost, currentUser, collection);
+    }
+  } catch (error) {
+    console.error("Error fetching recent posts: ", error);
+  }
+
+  return bestPost;
+};
+
+const calculateScore = (post) => {
+  const likeListLength = Array.isArray(post.likeList) ? post.likeList.length : 0;
+  const commentCount = post.commentCount || 0;
+  const views = Array.isArray(post.viewsList) ? post.viewsList.length : 0;
+  return likeListLength * 100 + commentCount * 10 + views;
+};
+
+const isBetterPost = (post, postScore, postTime, currentUser, highestScore, latestTime) => {
+  return (
+    post.Subject &&
+    post.Subject !== null &&
+    post.Subject !== "1" &&
+    post.viewsList !== null &&
+    post.viewsList.includes(currentUser.userId) &&
+    (!post.parentkey || (post.parentkey && post.childkey)) &&
+    (!post.reportList || (!post.reportList.includes(currentUser.userId) && post.reportList.length <= 6)) &&
+    (postScore > highestScore || (postScore === highestScore && postTime.isAfter(latestTime)))
+  );
+};
+
+const updateViewsList = async (bestPost, currentUser, language, collection) => {
+  if (bestPost && currentUser.userId && (!bestPost.viewsList || !bestPost.viewsList.includes(currentUser.userId))) {
+    let postRef
+    if (collection === "tweetVoice") {
+      postRef = ref(database, `tweetVoice/${language}/${bestPost.id}`);
+    } else {
+      postRef = ref(database, `tweetCountry/${currentUser.country}/${bestPost.id}`);
+    }
+    const updatedViewsList = bestPost.viewsList ? [...bestPost.viewsList, currentUser.userId] : [currentUser.userId];
+    await update(postRef, { viewsList: updatedViewsList });
+  }
+};
+
+const bestPostRefPath = (currentUser, postId) => {
+  if (currentUser.hasOwnProperty('wordslang')) {
+    return `/tweetVoice/${currentUser.wordslang}/${postId}`;
+  } else if (currentUser.hasOwnProperty('country')) {
+    return `/tweetCountry/${currentUser.country}/${postId}`;
+  }
+};
+
+// const getBestPostByLang = async (language, hours) => {
+//   const currentUser = await getCurrentUserData();
+//   if (!currentUser || currentUser.wordslang !== "Arabic worlds") {
+//     return null;
+//   }
+//   const collection = "tweetVoice"
+//   const hoursAgo = getTodayDate(hours);
+//   const postsRef = ref(database, `/tweetVoice/${language}`);
+//   const recentPostsQuery = query(
+//     postsRef,
+//     orderByChild("createdAt"),
+//     startAt(hoursAgo)
+//   );
+
+//   let bestPost = null;
+//   let highestScore = 0;
+//   let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
+
+//   try {
+//     const snapshot = await get(recentPostsQuery);
+//     if (snapshot.exists()) {
+//       snapshot.forEach((childSnapshot) => {
+//         const post = childSnapshot.val();
+//         const postId = childSnapshot.key;
+
+//         if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
+//           const postScore = calculateScore(post);
+//           const postTime = moment(post.createdAt, "YYYY-MM-DD HH:mm:ss.SSSSSSZ");
+
+//           if (isBetterPost(post, postScore, postTime, currentUser, highestScore, latestTime)) {
+//             highestScore = postScore;
+//             bestPost = { ...post, id: postId };
+//             latestTime = postTime;
+//           }
+//         }
+//       });
+
+//       await updateViewsList(bestPost, currentUser, language, collection);
+//     }
+//   } catch (error) {
+//     console.error("Error fetching recent posts: ", error);
+//   }
+
+//   return bestPost;
+// };
+
 export const latestPostByVoice = async (order) => {
-  let response;
+  let response = [];
   const currentUser = await getCurrentUserData();
   const database = getDatabase();
   const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
@@ -69,15 +550,21 @@ export const latestPostByVoice = async (order) => {
             !post.reportList ||
             (!post.reportList.includes(currentUser.userId) &&
               post.reportList?.length <= 6);
+          const hasViewList =
+            post.viewsList &&
+            post.viewsList !== null &&
+            post.viewsList.includes(currentUser.userId);
+
           return (
             hasValidSubject &&
             hasValidParentChildKeys &&
-            excludeBasedOnReportList
+            excludeBasedOnReportList &&
+            hasViewList
           );
         });
 
         const orderedPosts = filteredPosts.reverse();
-        response = orderedPosts[order] || null;
+        response = orderedPosts || null;
       }
     })
     .catch((error) => {
@@ -88,171 +575,29 @@ export const latestPostByVoice = async (order) => {
   return response;
 };
 
-export const bestPostByVoice = async (hours) => {
-  const todayDate = getTodayDate(hours);
-  const currentUser = await getCurrentUserData();
-  const postsRef = ref(database, `tweetVoice/${currentUser.wordslang}`);
-  const recentPostsQuery = query(
-    postsRef,
-    orderByChild("createdAt"),
-    startAt(todayDate)
-  );
-
-  let bestPost = null;
-  let highestScore = 0;
-  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
-  await get(recentPostsQuery)
-    .then(async (snapshot) => {
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnapshot) => {
-          const post = childSnapshot.val();
-          const postId = childSnapshot.key;
-
-          if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
-            const likeListLength = Array.isArray(post.likeList)
-              ? post.likeList.length
-              : 0;
-            const commentCount = post.commentCount || 0;
-            const views = Array.isArray(post.viewsList)
-              ? post.viewsList.length
-              : 0;
-            const score = likeListLength * 100 + commentCount * 10 + views;
-
-            const postTime = moment.utc(
-              post.createdAt,
-              "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
-            );
-            if (
-              post.Subject &&
-              (post.Subject !== null || post.Subject !== "1") &&
-              post.viewsList &&
-              post.viewsList !== null &&
-              post.viewsList.includes(currentUser.userId) &&
-              (!post.reportList ||
-                (!post.reportList.includes(currentUser.userId) &&
-                  post.reportList.length <= 6)) &&
-              (score > highestScore ||
-                (score === highestScore && postTime.isAfter(latestTime)))
-            ) {
-              highestScore = score;
-              bestPost = { ...post, id: postId };
-              latestTime = postTime;
-            }
-          }
-        });
-
-        if (
-          bestPost &&
-          currentUser.userId &&
-          (!bestPost.viewsList ||
-            !bestPost.viewsList.includes(currentUser.userId))
-        ) {
-          const postRef = ref(
-            database,
-            `/tweetVoice/${currentUser.wordslang}/${bestPost.id}`
-          );
-          let updatedViewsList = bestPost.viewsList
-            ? [...bestPost.viewsList, currentUser.userId]
-            : [currentUser.userId];
-
-          await update(postRef, { viewsList: updatedViewsList })
-            .then(() => {})
-            .catch((error) =>
-              console.error("Failed to update post viewsList", error)
-            );
-        }
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching recent posts: ", error);
-    });
-
-  return bestPost;
+export const bestPostByVoice = () => {
+  const selectedPostIds = [];
+  const collection = "tweetVoice"
+  return async (hours) => {
+    const currentUser = await getCurrentUserData();
+    const postsRef = ref(database, bestPostRefPath(currentUser, ""));
+    return await getBestPost(postsRef, currentUser, selectedPostIds, hours, collection);
+  };
 };
 
-export const bestPostByCountry = async (hours) => {
-  const todayDate = getTodayDate(hours);
-  const currentUser = await getCurrentUserData();
-  const postsRef = ref(database, `/tweetCountry/${currentUser.country}`);
-  const recentPostsQuery = query(
-    postsRef,
-    orderByChild("createdAt"),
-    startAt(todayDate)
-  );
-  let bestPost = null;
-  let highestScore = 0;
-  let latestTime = moment().format("YYYY-MM-DD HH:mm:ss.SSSSSS") + "Z";
-
-  await get(recentPostsQuery)
-    .then(async (snapshot) => {
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnapshot) => {
-          const post = childSnapshot.val();
-
-          const postId = childSnapshot.key;
-
-          if (!post.parentkey || (post.parentKey && post.childkey !== null)) {
-            const likeListLength = Array.isArray(post.likeList)
-              ? post.likeList.length
-              : 0;
-            const commentCount = post.commentCount || 0;
-            const views = Array.isArray(post.viewsList)
-              ? post.viewsList.length
-              : 0;
-            const score = likeListLength * 100 + commentCount * 10 + views;
-
-            const postTime = moment.utc(
-              post.createdAt,
-              "YYYY-MM-DD HH:mm:ss.SSSSSSZ"
-            );
-
-            if (
-              (post.Subject &&
-                post.Subject !== null &&
-                post.Subject !== "1" &&
-                post.viewsList !== null &&
-                post.viewsList.includes(currentUser.userId) &&
-                (!post.reportList ||
-                  (!post.reportList.includes(currentUser.userId) &&
-                    post.reportList.length <= 6)) &&
-                score > highestScore) ||
-              (score === highestScore && postTime.isAfter(latestTime))
-            ) {
-              highestScore = score;
-              bestPost = { ...post, id: postId };
-              latestTime = postTime;
-            }
-          }
-        });
-
-        if (
-          bestPost &&
-          currentUser.userId &&
-          (!bestPost.viewsList ||
-            !bestPost.viewsList.includes(currentUser.userId))
-        ) {
-          const postRef = ref(
-            database,
-            `/tweetCountry/${currentUser.country}/${bestPost.id}`
-          );
-          let updatedViewsList = bestPost.viewsList
-            ? [...bestPost.viewsList, currentUser.userId]
-            : [currentUser.userId];
-
-          await update(postRef, { viewsList: updatedViewsList })
-            .then(() => {})
-            .catch((error) =>
-              console.error("Failed to update post viewsList", error)
-            );
-        }
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching recent posts: ", error);
-    });
-
-  return bestPost;
+export const bestPostByCountry = () => {
+  const selectedPostIds = [];
+  const collection = "tweetCountry"
+  return async (hours) => {
+    const currentUser = await getCurrentUserData();
+    const postsRef = ref(database, bestPostRefPath(currentUser, ""));
+    return await getBestPost(postsRef, currentUser, selectedPostIds, hours, collection);
+  };
 };
+
+// export const bestPostByEngLang = async (hours) => {
+//   return await getBestPostByLang("English worlds", hours);
+// };
 
 export const bestPostByEngLang = async (hours) => {
   const hoursAgo = getTodayDate(hours);
@@ -303,7 +648,8 @@ export const bestPostByEngLang = async (hours) => {
                 postTime.isAfter(latestTime) &&
                 (!post.reportList ||
                   (!post.reportList.includes(currentUser.userId) &&
-                    post.reportList.length <= 6)))
+                    post.reportList.length <= 6))
+              )
             ) {
               highestScore = score;
               bestPost = { ...post, id: postId };
@@ -327,7 +673,7 @@ export const bestPostByEngLang = async (hours) => {
             : [currentUser.userId];
 
           await update(postRef, { viewsList: updatedViewsList })
-            .then(() => {})
+            .then(() => { })
             .catch((error) =>
               console.error("Failed to update post viewsList", error)
             );
@@ -361,7 +707,6 @@ export const restPostByVoice = async () => {
       .map(([id, post]) => ({ id, ...post }))
       .filter((post) => {
         const basicChecks =
-          post.createdAt !== undefined &&
           post.Subject &&
           post.Subject !== "1" &&
           post.viewsList &&
@@ -394,7 +739,7 @@ export const restPostByVoice = async () => {
           `tweetVoice/${currentUser.wordslang}/${post.id}`
         );
         await update(postRef, { viewsList: post.viewsList })
-          .then(() => {})
+          .then(() => { })
           .catch((error) =>
             console.error("Failed to update post viewsList", error)
           );
@@ -452,7 +797,7 @@ export const uploadPostData = async (inputValue, userId, fileName) => {
           isVerified: false,
           userName: userData.userName || "",
           userId: userId,
-          age: userData.age,
+          // age: userData.age,
         },
       };
 

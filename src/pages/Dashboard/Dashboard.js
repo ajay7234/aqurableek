@@ -48,45 +48,56 @@ const Dashboard = () => {
   const [imageViewer, setImageViewer] = useState(false);
   const [canUploadPost, setCanUploadPost] = useState(false);
   const [loadSidebar, setLoadSidebar] = useState(false);
+  const [latestPost, setLatestPost] = useState([]);
 
   const navigate = useNavigate();
+  const bestPostByVoice1 = bestPostByVoice();
+  const bestPostByCountry1 = bestPostByCountry();
+  // const latestPostByVoice1 = latestPostByVoice()
 
   const fetchAllData = async () => {
+    const latestPosts = [];
+
+    for (let i = 0; i <= 5; i++) {
+      const latestPost = await latestPostByVoice();
+      latestPosts.push(latestPost[i]);
+    }
+
     try {
       const dataPromises = [
-        latestPostByVoice(0),
-        bestPostByVoice(24),
-        bestPostByCountry(24),
+        latestPosts[0],
+        bestPostByVoice1(24),
+        bestPostByCountry1(24),
         bestPostByEngLang(24),
 
         // 2 days
-        latestPostByVoice(1),
-        bestPostByVoice(48),
-        bestPostByCountry(48),
+        latestPosts[1],
+        bestPostByVoice1(48),
+        bestPostByCountry1(48),
         bestPostByEngLang(48),
         // 3 days
 
-        latestPostByVoice(2),
-        bestPostByVoice(72),
-        bestPostByCountry(72),
+        latestPosts[2],
+        bestPostByVoice1(72),
+        bestPostByCountry1(72),
         bestPostByEngLang(72),
         // 7 days
 
-        latestPostByVoice(3),
-        bestPostByVoice(168),
-        bestPostByCountry(168),
+        latestPosts[3],
+        bestPostByVoice1(168),
+        bestPostByCountry1(168),
         bestPostByEngLang(168),
 
         // 15 days
-        latestPostByVoice(4),
-        bestPostByVoice(360),
-        bestPostByCountry(360),
+        latestPosts[4],
+        bestPostByVoice1(360),
+        bestPostByCountry1(360),
         bestPostByEngLang(360),
 
         // 30 days
-        latestPostByVoice(5),
-        bestPostByVoice(720),
-        bestPostByCountry(720),
+        latestPosts[5],
+        bestPostByVoice1(720),
+        bestPostByCountry1(720),
         bestPostByEngLang(720),
 
         restPostByVoice(),
@@ -98,7 +109,7 @@ const Dashboard = () => {
       const uniqueResults = Array.from(
         new Map(
           nonNullResults.map((item) => {
-            const uniqueKey = `${item?.createdAt}-${item?.user?.userName}-${item?.description}`;
+            const uniqueKey = `${item?.id}-${item?.user?.userName}-${item?.description}`;
             return [uniqueKey, item];
           })
         ).values()
@@ -337,10 +348,10 @@ const Dashboard = () => {
                               {item?.likeList?.length || 0}
                             </button>
                             <button
-                              onClick={() => {
-                                setTweet(true);
-                                setPostId(item?.id);
-                              }}
+                              // onClick={() => {
+                              //   setTweet(true);
+                              //   setPostId(item?.id);
+                              // }}
                               className="flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center"
                             >
                               <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
