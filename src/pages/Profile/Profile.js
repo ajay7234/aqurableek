@@ -3,18 +3,13 @@ import { FaAngleDown, FaCamera, FaLink } from "react-icons/fa6";
 import { Listbox, Menu, Transition } from "@headlessui/react";
 import ReactFlagsSelect from "react-flags-select";
 import BgImg from "../../assets/Images/bg-img.jpg";
-import user from "../../assets/Images/user.png";
+import Avatar from "../../assets/Images/user.png";
 import countries from "../../json/country.json";
-import Sidebar from "../../components/Sidebar/Sidebar";
 import {
   createdDate,
   updateLikeList,
   updateUserData,
 } from "../../helper/fetchTweetData";
-import {
-  getCurrentUserData,
-  getUserProfileData,
-} from "../../helper/userProfileData";
 import { toast } from "react-toastify";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { IoMdShare } from "react-icons/io";
@@ -26,6 +21,11 @@ import ReplyTweet from "../../components/Modals/ReplyTweet";
 import NotFound from "../../assets/Images/not-found.png";
 import ImageViewer from "../../components/Modals/ImageViewer";
 import { formatTimeDifference } from "../../helper/formateTiming";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCollectionData,
+  updatePostLikeStatus,
+} from "../../redux/userSlice";
 
 const people = [
   { id: 0, name: "Select Language to Speak" },
@@ -43,7 +43,6 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 const Profile = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profile, setProfile] = useState();
   const [fileName, setFileName] = useState("");
   const [postData, setPostData] = useState([]);
@@ -54,7 +53,9 @@ const Profile = () => {
   const [tweet, setTweet] = useState(false);
   const [postId, setPostId] = useState("");
   const [imageViewer, setImageViewer] = useState(false);
-  const [loadSidebar, setLoadSidebar] = useState(false);
+  const user = useSelector((state) => state.user.data);
+  const userPostData = useSelector((state) => state.userPost);
+  const dispatch = useDispatch();
   const [Input, setInput] = useState({
     firstName: "",
     lastName: "",
@@ -98,7 +99,7 @@ const Profile = () => {
   };
 
   const getProfileData = async () => {
-    const userData = await getCurrentUserData();
+    const userData = user.userData;
     const birthDate = userData.dob.split(" ")[0];
     const countryName = userData.country.split(" ")[1];
     const countryData = countries.find((c) => c.name === countryName);
@@ -117,12 +118,6 @@ const Profile = () => {
       bio: userData.bio,
       age: userData.age,
     });
-  };
-
-  const getPostData = async () => {
-    const data = await getUserProfileData(userId);
-    setPostData(data.userPosts);
-    setUserData(data.userProfile);
   };
 
   const handleSubmit = async () => {
@@ -151,6 +146,7 @@ const Profile = () => {
     }
 
     await updateUserData(userData);
+    dispatch(fetchCollectionData());
     toast.success("profile details updated succesfully");
   };
 
@@ -159,14 +155,14 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    getProfileData();
-  }, []);
-
-  useEffect(() => {
-    if (userId !== "") {
-      getPostData();
+    if (!user) {
+      dispatch(fetchCollectionData());
+    } else if (user) {
+      getProfileData();
+      setPostData(userPostData.userPosts);
+      setUserData(userPostData.userProfile);
     }
-  }, [userId]);
+  }, [user, dispatch, userPostData]);
 
   const handleFileChange = (e) => {
     const img = URL.createObjectURL(e.target.files[0]);
@@ -175,37 +171,13 @@ const Profile = () => {
   };
 
   const handleLike = async (postId) => {
-    const updatedPosts = postData.map((post) => {
-      if (post.id === postId) {
-        const hasLiked = post.likeList?.includes(userId);
-        let updatedLikeList;
-        if (hasLiked) {
-          updatedLikeList = post.likeList?.filter((id) => id !== userId) || [];
-        } else {
-          updatedLikeList = [...(post.likeList || []), userId];
-        }
-        return { ...post, likeList: updatedLikeList };
-      }
-      return post;
-    });
-
-    setPostData(updatedPosts);
-    updatedPosts.filter((data) => {
-      if (data.id === postId) {
-        setSinglePost(data);
-      }
-    });
-    await updateLikeList(postId);
+    await updateLikeList(postId, userId);
+    dispatch(updatePostLikeStatus({ postId, userId }));
   };
 
   return (
     <div>
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        loadSidebar={loadSidebar}
-      />
-      <div className={!sidebarOpen ? "lg:pl-72" : ""}>
+      <div className="side-space">
         <div className="p-[20px]">
           <div className="flex justify-center items-center">
             <div className="2xl:max-w-[1300px] xl:w-[60%] w-full sm:mx-auto">
@@ -214,7 +186,7 @@ const Profile = () => {
                   <div className="absolute bottom-[10px] left-[10px] z-[1] border-[#fff] border-[5px] rounded-full">
                     <img
                       className="w-[100px] h-[100px] object-cover rounded-full"
-                      src={profile || user}
+                      src={profile || Avatar}
                       alt="Your Company"
                     />
                     <div className="bg-[#0000005f] absolute top-0 left-0 w-full h-full rounded-full"></div>
@@ -633,6 +605,7 @@ const Profile = () => {
         post={post}
         setPost={setPost}
         postData={singlePost}
+        setPostData={setSinglePost}
         handleLike={handleLike}
       />
       <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
@@ -640,6 +613,7 @@ const Profile = () => {
         imageViewer={imageViewer}
         setImageViewer={setImageViewer}
         postData={singlePost}
+        setPostData={setSinglePost}
         handleLike={handleLike}
       />
     </div>

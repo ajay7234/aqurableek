@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import user from "../../assets/Images/user.png";
+import Avatar from "../../assets/Images/user.png";
 import { FaRegBookmark, FaRegUser } from "react-icons/fa6";
 import { RiFileList2Line, RiQrCodeLine } from "react-icons/ri";
 import { BsCalendar3, BsLightning } from "react-icons/bs";
@@ -8,8 +8,7 @@ import { IoHomeOutline, IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { MdOutlineClose } from "react-icons/md";
 import { FiMenu } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom";
-import { getCurrentUserData } from "../../helper/userProfileData";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth } from "../../Firebase/Firebase";
 import moment from "moment";
 import Followers from "../Modals/Followers";
@@ -18,8 +17,15 @@ import {
   findFollowerList,
   findFollowingList,
 } from "../../helper/userFollowList";
+import {
+  fetchCollectionData,
+  fetchUserData,
+  logout,
+} from "../../redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { clearpost, getUserPostData } from "../../redux/userPostSlice";
 
-export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
+export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const [mobileSidebar, setMobileSidebar] = useState(false);
   const [userData, setUserData] = useState({});
   const navigate = useNavigate();
@@ -27,17 +33,30 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
   const [following, setFollowing] = useState(false);
   const [followerUsers, setFollowerUsers] = useState([]);
   const [followingUsers, setFollowingUsers] = useState([]);
-
-  const getUserProfile = async () => {
-    const data = await getCurrentUserData();
-    setUserData(data);
-  };
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.data);
+  const userProfile = useSelector((state) => state.user.userData);
+  const location = useLocation();
 
   useEffect(() => {
-    getUserProfile();
-  }, [loadSidebar, followers, following]);
+    if (!user) {
+      dispatch(fetchCollectionData());
+    } else if (user) {
+      setUserData(user.userData);
+      dispatch(getUserPostData(user.userData.userId));
+    }
+    console.log("user", user);
+  }, [user, dispatch]);
+
+  useEffect(() => {
+    if (!userProfile) {
+      dispatch(fetchUserData());
+    }
+  }, [dispatch, userProfile]);
 
   const handleLogOut = () => {
+    dispatch(logout());
+    dispatch(clearpost());
     auth
       .signOut()
       .then(() => {
@@ -47,6 +66,19 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
         console.log(error);
       });
   };
+
+  useEffect(() => {
+    const body = document.querySelector("body");
+    if (
+      location.pathname === "/" ||
+      location.pathname === "/signup" ||
+      location.pathname === "/forget"
+    ) {
+      body.classList.add("show-sidebar");
+    } else {
+      body.classList.remove("show-sidebar");
+    }
+  }, [location]);
 
   const fetchFollowersList = async () => {
     const followerData = await findFollowerList(userData.followerList);
@@ -58,10 +90,16 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
 
   useEffect(() => {
     fetchFollowersList();
-  }, [userData, loadSidebar]);
+  }, [userData]);
+
+  const handleToggleSidebar = () => {
+    const body = document.querySelector("body");
+    body.classList.toggle("toggle-sidebar");
+  };
+
   return (
     <>
-      <div>
+      <div className="sidebar-main">
         <Transition.Root show={mobileSidebar} as={Fragment}>
           <Dialog
             as="div"
@@ -120,23 +158,23 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
                         <Link to={"/profile"}>
                           <img
                             className="w-[60px]"
-                            src={userData?.profilePic || user}
+                            src={userProfile?.profilePic || Avatar}
                             alt="Your Company"
                           />
                         </Link>
                         <div className="mt-[12px]">
                           <p className="text-[18px] font-bold">
-                            {userData?.displayName}
+                            {userProfile?.displayName}
                           </p>
                           <p className=" text-[14px]">
-                            {userData?.userName || "@johndeo28842"}
+                            {userProfile?.userName || "@johndeo28842"}
                           </p>
                         </div>
                         <div className="flex items-center gap-[12px]">
                           <BsCalendar3 className="text-[#626161] text-[14px]" />
                           <p className="text-[#626161] text-[14px]">
                             Joined{" "}
-                            {moment(userData.createdAt).format("MMMM YYYY")}
+                            {moment(userProfile?.createdAt).format("MMMM YYYY")}
                           </p>
                         </div>
                         <div className="flex gap-[30px] mt-4">
@@ -144,7 +182,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
                             className="flex gap-2"
                             onClick={() => setFollowers(!followers)}
                           >
-                            <h2>{userData?.followerList?.length || 0}</h2>
+                            <h2>{userProfile?.followerList?.length || 0}</h2>
                             <button className="text-[#626161]">Follwers</button>
                           </div>
                           <div
@@ -184,7 +222,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
                         <div className="p-[14px_20px] flex gap-[20px] items-center bg-white hover:bg-[#e3e3e3] cursor-pointer opacity-40">
                           <BsLightning className="text-[#979797] text-[20px] w-[22px]" />
                           <p className="text-[#212121] text-[18px]">Moments</p>
-                          =3.^XCD5e$,E!mD
                         </div>
                       </div>
                       <div className="border-b-[#626161] border-b-[1px] py-[10px]">
@@ -223,23 +260,24 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
                   <Link to={"/profile"}>
                     <img
                       className="w-[60px] h-[60px] rounded-full object-cover"
-                      src={userData?.profilePic || user}
+                      src={userProfile?.profilePic || Avatar}
                       alt="Your Company"
                     />
                   </Link>
                   <div className="mt-[12px]">
                     <p className="text-[18px] font-bold">
-                      {userData?.displayName}
+                      {userProfile?.displayName}
                     </p>
                     <p className=" text-[14px]">
-                      {userData?.userName || "@johndeo28842"}
+                      {userProfile?.userName || "@johndeo28842"}
                     </p>
                   </div>
                   <div className="mt-[20px]">
                     <div className="flex items-center gap-[12px]">
                       <BsCalendar3 className="text-[#626161] text-[14px]" />
                       <p className="text-[#626161] text-[14px]">
-                        Joined {moment(userData.createdAt).format("MMMM YYYY")}
+                        Joined{" "}
+                        {moment(userProfile?.createdAt).format("MMMM YYYY")}
                       </p>
                     </div>
                     <div className="flex gap-[30px] mt-4">
@@ -247,14 +285,14 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
                         className="flex gap-2"
                         onClick={() => setFollowers(!followers)}
                       >
-                        <h2>{userData?.followerList?.length || 0}</h2>
+                        <h2>{userProfile?.followerList?.length || 0}</h2>
                         <button className="text-[#626161]">Follwers</button>
                       </div>
                       <div
                         className="flex gap-2"
                         onClick={() => setFollowing(!following)}
                       >
-                        <h2>{userData?.followingList?.length || 0}</h2>
+                        <h2>{userProfile?.followingList?.length || 0}</h2>
                         <button className="text-[#626161]">Following</button>
                       </div>
                     </div>
@@ -317,8 +355,12 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, loadSidebar }) {
             <div>
               <button
                 type="button"
+                id="clickButton"
                 className="-m-2.5 p-2.5 text-gray-700 lg:block hidden"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
+                onClick={() => {
+                  setSidebarOpen(!sidebarOpen);
+                  handleToggleSidebar();
+                }}
               >
                 <span className="sr-only">Open sidebar</span>
                 <FiMenu className="h-6 w-6" aria-hidden="true" />

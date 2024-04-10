@@ -66,11 +66,13 @@ const Router = () => {
       </Route>
 
       {!loading && (
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/user-profile/:id" element={<UserProfile />} />
-        </Route>
+        <>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/user-profile/:id" element={<UserProfile />} />
+          </Route>
+        </>
       )}
     </Routes>
   );

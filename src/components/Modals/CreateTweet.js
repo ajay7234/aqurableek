@@ -1,40 +1,39 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import user from "../../assets/Images/user.png";
 import { IoClose } from "react-icons/io5";
 import { AiOutlinePicture } from "react-icons/ai";
-import { uploadPostData } from "../../helper/filterTweetData";
 import { toast } from "react-toastify";
-import { getCurrentUserData } from "../../helper/userProfileData";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { uploadPostData } from "../../helper/uploadData";
 
-const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
+const CreateTweet = ({
+  handleFetchData,
+  open,
+  setOpen,
+  showCloseBtn,
+  userId,
+  isSignup,
+}) => {
   const [inputValue, setInputValue] = useState("");
   const [upload, setUpload] = useState();
   const [fileName, setFileName] = useState("");
-  const [userData, setUserData] = useState({});
-  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.data);
+  const [isSending, setIsSending] = useState(false);
 
   const handlePostData = async (userId) => {
+    setIsSending(true);
     if (inputValue === "") {
       toast.error("description is required for post");
     } else if (inputValue.length < 17 || inputValue.length > 170) {
       toast.error("Post length should be between 17 and 170 characters.");
     } else {
       await uploadPostData(inputValue, userId, fileName);
+      await handleFetchData();
       setOpen(false);
-      navigate("/dashboard");
     }
   };
 
-  const getUserProfile = async () => {
-    const data = await getCurrentUserData();
-    setUserData(data);
-  };
-
-  useEffect(() => {
-    getUserProfile();
-  }, []);
+  useEffect(() => {}, [user]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -101,16 +100,28 @@ const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
                           </button>
                         )}
                         <button
-                          className="bg-[#EF9595] d-flex jus text-white p-[3px_18px] rounded-2xl"
-                          onClick={() => handlePostData(userId)}
+                          className={`bg-[#EF9595] d-flex text-white p-[3px_18px] rounded-2xl flex gap-2 ${
+                            isSending ? "cursor-not-allowed" : ""
+                          }`}
+                          onClick={() => !isSending && handlePostData(userId)}
+                          disabled={isSending}
                         >
-                          Send
+                          {isSending ? (
+                            <>
+                              Sending...
+                              <div className="box-loader">
+                                <div className="spinner"></div>
+                              </div>
+                            </>
+                          ) : (
+                            "Send"
+                          )}
                         </button>
                       </div>
                       <div className="min-h-[300px]">
                         <div className="flex items-start sm:gap-[20px] gap-[14px] mt-[20px] mb-[10px]">
                           <img
-                            src={userData?.profilePic || user}
+                            src={user?.userData?.profilePic || user}
                             alt="user"
                             className="sm:w-[40px] w-[40px] h-[39px] rounded-full object-cover"
                           />

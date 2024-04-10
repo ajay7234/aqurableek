@@ -60,12 +60,12 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
         updates[`/profile/${currentUserId}/followingList`] =
           currentUserData.followingList.filter((id) => id !== targetUserId);
         updates[`/profile/${currentUserId}/following`] =
-          currentUserData.following - 1; // Decrease following count
+          currentUserData.following - 1; 
 
         updates[`/profile/${targetUserId}/followerList`] =
           targetUserData.followerList.filter((id) => id !== currentUserId);
         updates[`/profile/${targetUserId}/followers`] =
-          targetUserData.followers - 1; // Decrease follower count
+          targetUserData.followers - 1; 
       } else {
         // Follow logic
         updates[`/profile/${currentUserId}/followingList`] = [
@@ -73,14 +73,14 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
           targetUserId,
         ];
         updates[`/profile/${currentUserId}/following`] =
-          (currentUserData.following || 0) + 1; // Increase following count
+          (currentUserData.following || 0) + 1; 
 
         updates[`/profile/${targetUserId}/followerList`] = [
           ...(targetUserData.followerList || []),
           currentUserId,
         ];
         updates[`/profile/${targetUserId}/followers`] =
-          (targetUserData.followers || 0) + 1; // Increase follower count
+          (targetUserData.followers || 0) + 1;
       }
 
       // Update both users' profiles in the database

@@ -2,10 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import bgImg from "../../assets/Images/bg-img.jpg";
 import { MdMessage, MdVerified } from "react-icons/md";
 import { BsCalendar3 } from "react-icons/bs";
-import {
-  getCurrentUserData,
-  getUserProfileData,
-} from "../../helper/userProfileData";
+import { getUserProfileData } from "../../helper/userProfileData";
 import moment from "moment";
 import { FaLink } from "react-icons/fa6";
 import { HiEye } from "react-icons/hi";
@@ -22,7 +19,6 @@ import ReplyTweet from "../../components/Modals/ReplyTweet";
 import SinglePost from "../../components/Modals/SinglePost";
 import Followers from "../../components/Modals/Followers";
 import Following from "../../components/Modals/Following";
-import Sidebar from "../../components/Sidebar/Sidebar";
 import {
   findFollowerList,
   findFollowingList,
@@ -30,6 +26,11 @@ import {
 } from "../../helper/userFollowList";
 import { formatTimeDifference } from "../../helper/formateTiming";
 import Loader from "../../components/Loader/Loader";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchUserData,
+  updatePostLikeStatus,
+} from "../../redux/userSlice";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -37,9 +38,7 @@ function classNames(...classes) {
 
 const UserProfile = () => {
   const [userData, setUserData] = useState({});
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [postData, setPostData] = useState([]);
-  const [currentUser, setCurrentUser] = useState({});
   const [imageViewer, setImageViewer] = useState(false);
   const [singlePost, setSinglePost] = useState({});
   const [tweet, setTweet] = useState(false);
@@ -50,7 +49,10 @@ const UserProfile = () => {
   const [followerUsers, setFollowerUsers] = useState([]);
   const [followingUsers, setFollowingUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadSidebar, setLoadSidebar] = useState(false);
+  const user = useSelector((state) => state.user.data);
+  const [currentUser, setCurrentUser] = useState({});
+
+  const dispatch = useDispatch();
 
   const params = useParams();
 
@@ -61,14 +63,17 @@ const UserProfile = () => {
     setIsLoading(false);
   };
 
-  const currentUserData = async () => {
-    const data = await getCurrentUserData();
-    setCurrentUser(data);
-  };
-
   const handleCopySuccess = () => {
     toast.success("Link copied to clipboard!");
   };
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUserData());
+    } else if (user) {
+      setCurrentUser(user.userData);
+    }
+  }, [user, dispatch, currentUser]);
 
   useEffect(() => {
     getUserProfile();
@@ -78,33 +83,10 @@ const UserProfile = () => {
     getUserProfile();
   }, [followers, following]);
 
-  useEffect(() => {
-    currentUserData();
-  }, []);
-
   const handleLike = async (postId) => {
-    const updatedPosts = postData.map((post) => {
-      if (post.id === postId) {
-        const hasLiked = post.likeList?.includes(currentUser.userId);
-        let updatedLikeList;
-        if (hasLiked) {
-          updatedLikeList =
-            post.likeList?.filter((id) => id !== currentUser.userId) || [];
-        } else {
-          updatedLikeList = [...(post.likeList || []), currentUser.userId];
-        }
-        return { ...post, likeList: updatedLikeList };
-      }
-      return post;
-    });
-
-    setPostData(updatedPosts);
-    updatedPosts.filter((data) => {
-      if (data.id === postId) {
-        setSinglePost(data);
-      }
-    });
-    await updateLikeList(postId);
+    const userId = currentUser.userId;
+    await updateLikeList(postId, currentUser);
+    dispatch(updatePostLikeStatus({ postId, userId }));
   };
 
   const fetchFollowersList = async () => {
@@ -121,22 +103,13 @@ const UserProfile = () => {
 
   const handleUpdateFollowList = async () => {
     await toggleFollowUser(currentUser.userId, userData.userId);
+    await dispatch(fetchUserData());
     getUserProfile();
-    setLoadSidebar(!loadSidebar);
   };
-
-  useEffect(() => {
-    setLoadSidebar(!loadSidebar);
-  }, [followers, following]);
 
   return (
     <div>
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        loadSidebar={loadSidebar}
-      />
-      <div className={!sidebarOpen ? "lg:pl-72" : ""}>
+      <div className="side-space">
         {!isLoading ? (
           <div className="max-w-[1000px] mx-auto p-[20px]">
             <div className="shadow-[rgba(0,0,0,0.2)_0px_1px_10px]">
@@ -399,6 +372,7 @@ const UserProfile = () => {
         imageViewer={imageViewer}
         setImageViewer={setImageViewer}
         postData={singlePost}
+        setPostData={setSinglePost}
         handleLike={handleLike}
       />
       <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
@@ -406,6 +380,7 @@ const UserProfile = () => {
         post={post}
         setPost={setPost}
         postData={singlePost}
+        setPostData={setSinglePost}
         handleLike={handleLike}
       />
       {userData.followers > 0 && (

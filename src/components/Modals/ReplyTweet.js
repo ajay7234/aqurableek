@@ -1,30 +1,24 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import user from "../../assets/Images/user.png";
 import { IoClose } from "react-icons/io5";
 import {
   createdDate,
   replyCommentData,
   singlePostData,
 } from "../../helper/fetchTweetData";
-import { getCurrentUserData } from "../../helper/userProfileData";
 import { AiOutlinePicture } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 const ReplyTweet = ({ tweet, setTweet, postId }) => {
   const [inputValue, setInputValue] = useState("");
   const [postData, setPostData] = useState({});
-  const [userData, setUserData] = useState({});
   const [upload, setUpload] = useState("");
   const [fileName, setFileName] = useState("");
+  const user = useSelector((state) => state.user.data);
 
   const getPostData = async () => {
     const data = await singlePostData(postId);
     setPostData(data);
-  };
-
-  const getUserDetails = async () => {
-    const data = await getCurrentUserData();
-    setUserData(data);
   };
 
   const commentData = async () => {
@@ -43,8 +37,7 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
   };
   useEffect(() => {
     getPostData();
-    getUserDetails();
-  }, [postId]);
+  }, [postId, user]);
 
   return (
     <Transition.Root show={tweet} as={Fragment}>
@@ -125,7 +118,7 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
                         </div>
                         <div className="flex items-start sm:gap-[20px] gap-[14px] mt-[10px] mb-[10px]">
                           <img
-                            src={userData?.profilePic || user}
+                            src={user?.userData?.profilePic || user}
                             alt="user"
                             className="sm:w-[35px] w-[35px] h-[35px] rounded-full object-cover"
                           />

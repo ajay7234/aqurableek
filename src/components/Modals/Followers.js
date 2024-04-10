@@ -2,9 +2,10 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { IoArrowBack, IoClose } from "react-icons/io5";
 import Avtar from "../../assets/Images/user.png";
-import { getCurrentUserData } from "../../helper/userProfileData";
 import { toggleFollowUser } from "../../helper/userFollowList";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserData, toggleFollowingStatus } from "../../redux/userSlice";
 
 const Followers = ({
   followers,
@@ -14,14 +15,17 @@ const Followers = ({
 }) => {
   const [userData, setUserData] = useState({});
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.data);
+  const dispatch = useDispatch();
 
   const currentUserData = async () => {
-    const data = await getCurrentUserData();
-    setUserData(data);
+    setUserData(user.userData);
   };
   useEffect(() => {
-    currentUserData();
-  }, []);
+    if (user) {
+      currentUserData();
+    }
+  }, [user]);
 
   const handleUpdateFollowList = async (targetUserId) => {
     await toggleFollowUser(userData.userId, targetUserId);
@@ -37,7 +41,7 @@ const Followers = ({
       }
       return user;
     });
-
+    await dispatch(fetchUserData());
     setFollowerUsers(updatedFollowerUsers);
   };
 

@@ -8,38 +8,46 @@ import { TiArrowUpOutline, TiArrowUpThick } from "react-icons/ti";
 import ReplyTweet from "./ReplyTweet";
 import NotFound from "../../assets/Images/not-found.png";
 import ImageViewer from "./ImageViewer";
-import { getCurrentUserData } from "../../helper/userProfileData";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { FaLink } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { formatTimeDifference } from "../../helper/formateTiming";
+import { useSelector } from "react-redux";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-function SinglePost({ post, setPost, postData, handleLike }) {
+function SinglePost({ post, setPost, postData, setPostData, handleLike }) {
   const [tweet, setTweet] = useState(false);
   const [postId, setPostId] = useState("");
   const [imageViewer, setImageViewer] = useState(false);
   const [singlePost, setSinglePost] = useState({});
-  const [currentUser, setCurrentUser] = useState({});
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.data);
 
-  const currentUserData = async () => {
-    const data = await getCurrentUserData();
-    setCurrentUser(data);
-  };
   const handleCopySuccess = () => {
     toast.success("Link copied to clipboard!");
   };
   useEffect(() => {
-    currentUserData();
-  }, [postData]);
+    if (user) {
+      const tweetVoiceData = user.tweetVoice[`${postData.id}`];
+      const tweetCountryData = user.tweetCountry[`${postData.id}`];
+      const englishPostData = user.englishPost[`${postData.id}`];
+
+      if (tweetVoiceData?.user) {
+        setPostData(tweetVoiceData);
+      } else if (tweetCountryData?.user) {
+        setPostData(tweetCountryData);
+      } else if (englishPostData?.user) {
+        setPostData(englishPostData);
+      }
+    }
+  }, [user]);
 
   const handleNavigate = (item) => {
-    if (item.user.userId === currentUser.userId) {
+    if (item.user.userId === user.userData.userId) {
       navigate("/profile");
     } else {
       navigate("/user-profile/" + item.user.userId);
@@ -152,7 +160,7 @@ function SinglePost({ post, setPost, postData, handleLike }) {
                             onClick={() => handleLike(postData?.id)}
                           >
                             {postData?.likeList?.includes(
-                              currentUser?.userId
+                              user.userData?.userId
                             ) ? (
                               <TiArrowUpThick className="sm:text-[24px] text-[20px] text-[green]" />
                             ) : (

@@ -6,7 +6,7 @@ import {
   update,
 } from "firebase/database";
 import "firebase/database";
-import { uploadImageToStorage } from "./filterTweetData";
+import { uploadImageToStorage } from "./uploadData";
 import { getCurrentUserData } from "./userProfileData";
 import moment from "moment";
 
@@ -36,8 +36,8 @@ const updatePostLikeList = (postRef, userData) => {
     });
 };
 
-export const updateLikeList = async (postId) => {
-  const userData = await getCurrentUserData();
+export const updateLikeList = async (postId, userData) => {
+  // const userData = await getCurrentUserData();
   let response;
   const paths = [
     `tweetVoice/${userData.wordslang}/${postId}`,
@@ -228,5 +228,3 @@ export const voiceData = async () => {
     });
   return response;
 };
-
-export const updateViewList = async () => {};

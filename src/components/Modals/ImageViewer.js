@@ -5,31 +5,47 @@ import { MdKeyboardBackspace, MdMessage } from "react-icons/md";
 import { HiEye } from "react-icons/hi";
 import { IoMdShare } from "react-icons/io";
 import ReplyTweet from "./ReplyTweet";
-import { getCurrentUserData } from "../../helper/userProfileData";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { FaLink } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import NotFound from "../../assets/Images/not-found.png";
+import { useSelector } from "react-redux";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const ImageViewer = ({ imageViewer, setImageViewer, postData, handleLike }) => {
+const ImageViewer = ({
+  imageViewer,
+  setImageViewer,
+  postData,
+  setPostData,
+  handleLike,
+}) => {
   const [tweet, setTweet] = useState(false);
   const [postId, setPostId] = useState("");
-  const [userData, setUserData] = useState({});
+  const user = useSelector((state) => state.user.data);
 
-  const fetchCurrentUser = async () => {
-    const data = await getCurrentUserData();
-    setUserData(data);
-  };
   const handleCopySuccess = () => {
     toast.success("Link copied to clipboard!");
   };
+  useEffect(() => {}, [user]);
+
   useEffect(() => {
-    fetchCurrentUser();
-  }, []);
+    if (user) {
+      const tweetVoiceData = user.tweetVoice[`${postData.id}`];
+      const tweetCountryData = user.tweetCountry[`${postData.id}`];
+      const englishPostData = user.englishPost[`${postData.id}`];
+
+      if (tweetVoiceData?.user) {
+        setPostData(tweetVoiceData);
+      } else if (tweetCountryData?.user) {
+        setPostData(tweetCountryData);
+      } else if (englishPostData?.user) {
+        setPostData(englishPostData);
+      }
+    }
+  }, [user]);
 
   return (
     <div>
@@ -88,7 +104,9 @@ const ImageViewer = ({ imageViewer, setImageViewer, postData, handleLike }) => {
                         className={`flex sm:gap-[16px] gap-[6px] text-[16px] items-center `}
                         onClick={() => handleLike(postData?.id)}
                       >
-                        {postData?.likeList?.includes(userData?.userId) ? (
+                        {postData?.likeList?.includes(
+                          user?.userData?.userId
+                        ) ? (
                           <TiArrowUpThick className="sm:text-[24px] text-[20px] text-[green]" />
                         ) : (
                           <TiArrowUpOutline className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />

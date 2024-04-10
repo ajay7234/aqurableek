@@ -3,21 +3,11 @@ import { MdFlag, MdMessage, MdVerified } from "react-icons/md";
 import { TiArrowUpOutline } from "react-icons/ti";
 import { IoMdShare } from "react-icons/io";
 import { HiEye } from "react-icons/hi";
-import Sidebar from "../../components/Sidebar/Sidebar";
 import CreateTweet from "../../components/Modals/CreateTweet";
-import {
-  bestPostByCountry,
-  bestPostByEngLang,
-  bestPostByVoice,
-  getTodayDate,
-  latestPostByVoice,
-  restPostByVoice,
-} from "../../helper/filterTweetData";
-import user from "../../assets/Images/user.png";
+import { getTodayDate } from "../../helper/uploadData";
 import NotFound from "../../assets/Images/not-found.png";
-import { updateLikeList, voiceData } from "../../helper/fetchTweetData";
+import { updateLikeList } from "../../helper/fetchTweetData";
 import { toast } from "react-toastify";
-import { getCurrentUserData } from "../../helper/userProfileData";
 import ReplyTweet from "../../components/Modals/ReplyTweet";
 import SinglePost from "../../components/Modals/SinglePost";
 import { TiArrowUpThick } from "react-icons/ti";
@@ -28,6 +18,18 @@ import ImageViewer from "../../components/Modals/ImageViewer";
 import { useNavigate } from "react-router-dom";
 import { formatTimeDifference } from "../../helper/formateTiming";
 import Loader from "../../components/Loader/Loader";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCollectionData,
+  updatePostLikeStatus,
+} from "../../redux/userSlice";
+import {
+  filterEnglishPostData,
+  filterTweetCountryData,
+  filterTweetVoiceData,
+  latestTweetVoiceData,
+  restPostByVoice,
+} from "../../helper/filterTweetUtils";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -35,7 +37,6 @@ function classNames(...classes) {
 
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterData, setFilterData] = useState([]);
   const [userId, setUserId] = useState();
   const [canSeePost, setCanSeePost] = useState(false);
@@ -46,105 +47,103 @@ const Dashboard = () => {
   const [showMessage, setShowMessage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [imageViewer, setImageViewer] = useState(false);
-  const [canUploadPost, setCanUploadPost] = useState(false);
-  const [loadSidebar, setLoadSidebar] = useState(false);
-  const [latestPost, setLatestPost] = useState([]);
-
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.data);
+  const [filteredTweetVoice, setFilteredTweetVoice] = useState([]);
   const navigate = useNavigate();
-  const bestPostByVoice1 = bestPostByVoice();
-  const bestPostByCountry1 = bestPostByCountry();
-  // const latestPostByVoice1 = latestPostByVoice()
+
+  const fetchLatestData = async () => {
+    if (user) {
+      const filteredData = await latestTweetVoiceData(
+        user.tweetVoice,
+        user.userData
+      );
+      setFilteredTweetVoice(filteredData);
+      setUserId(user.userData.userId);
+    }
+  };
+
+  useEffect(() => {
+    fetchLatestData();
+  }, [user, dispatch]);
 
   const fetchAllData = async () => {
-    const latestPosts = [];
+    if (filteredTweetVoice.length > 0) {
+      try {
+        const dataPromises = [
+          filteredTweetVoice[0],
+          filterTweetVoiceData(user.tweetVoice, user.userData, 24),
+          filterTweetCountryData(user.tweetCountry, user.userData, 24),
+          filterEnglishPostData(user.englishPost, user.userData, 24),
 
-    for (let i = 0; i <= 5; i++) {
-      const latestPost = await latestPostByVoice();
-      latestPosts.push(latestPost[i]);
-    }
+          // 2 days
+          filteredTweetVoice[1],
+          filterTweetVoiceData(user.tweetVoice, user.userData, 48),
+          filterTweetCountryData(user.tweetCountry, user.userData, 48),
+          filterEnglishPostData(user.englishPost, user.userData, 48),
 
-    try {
-      const dataPromises = [
-        latestPosts[0],
-        bestPostByVoice1(24),
-        bestPostByCountry1(24),
-        bestPostByEngLang(24),
+          // // 3 days
+          filteredTweetVoice[2],
+          filterTweetVoiceData(user.tweetVoice, user.userData, 72),
+          filterTweetCountryData(user.tweetCountry, user.userData, 72),
+          filterEnglishPostData(user.englishPost, user.userData, 72),
 
-        // 2 days
-        latestPosts[1],
-        bestPostByVoice1(48),
-        bestPostByCountry1(48),
-        bestPostByEngLang(48),
-        // 3 days
+          // // 7 days
+          filteredTweetVoice[3],
+          filterTweetVoiceData(user.tweetVoice, user.userData, 168),
+          filterTweetCountryData(user.tweetCountry, user.userData, 168),
+          filterEnglishPostData(user.englishPost, user.userData, 168),
 
-        latestPosts[2],
-        bestPostByVoice1(72),
-        bestPostByCountry1(72),
-        bestPostByEngLang(72),
-        // 7 days
+          // // 15 days
+          filteredTweetVoice[4],
+          filterTweetVoiceData(user.tweetVoice, user.userData, 360),
+          filterTweetCountryData(user.tweetCountry, user.userData, 360),
+          filterEnglishPostData(user.englishPost, user.userData, 360),
 
-        latestPosts[3],
-        bestPostByVoice1(168),
-        bestPostByCountry1(168),
-        bestPostByEngLang(168),
+          // // 30 days
+          filteredTweetVoice[5],
+          filterTweetVoiceData(user.tweetVoice, user.userData, 720),
+          filterTweetCountryData(user.tweetCountry, user.userData, 720),
+          filterEnglishPostData(user.englishPost, user.userData, 720),
 
-        // 15 days
-        latestPosts[4],
-        bestPostByVoice1(360),
-        bestPostByCountry1(360),
-        bestPostByEngLang(360),
+          restPostByVoice(user.tweetVoice, user.userData),
+        ];
+        const results = await Promise.all(dataPromises);
 
-        // 30 days
-        latestPosts[5],
-        bestPostByVoice1(720),
-        bestPostByCountry1(720),
-        bestPostByEngLang(720),
+        const nonNullResults = results.flat().filter((item) => item !== null);
 
-        restPostByVoice(),
-      ];
-      const results = await Promise.all(dataPromises);
-
-      const nonNullResults = results.flat().filter((item) => item !== null);
-
-      const uniqueResults = Array.from(
-        new Map(
-          nonNullResults.map((item) => {
-            const uniqueKey = `${item?.id}-${item?.user?.userName}-${item?.description}`;
-            return [uniqueKey, item];
-          })
-        ).values()
-      );
-      setFilterData(uniqueResults);
-    } catch (error) {
-      console.error("Error fetching data", error);
-    } finally {
-      setLoading(false);
+        const uniqueResults = Array.from(
+          new Map(
+            nonNullResults.map((item) => {
+              const uniqueKey = `${item?.id}-${item?.user?.userName}-${item?.description}`;
+              return [uniqueKey, item];
+            })
+          ).values()
+        );
+        setFilterData(uniqueResults);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchAllData();
-  }, [open, tweet, post]);
-
-  useEffect(() => {
-    getUserID();
-  }, []);
-
-  const getUserID = async () => {
-    const userData = await getCurrentUserData();
-    setUserId(userData?.userId);
-  };
+    if (user) {
+      fetchAllData();
+    }
+  }, [filteredTweetVoice, dispatch, user]);
 
   const hasPostedUser = async () => {
     const sevenDaysAgo = getTodayDate(168);
-    const userData = await getCurrentUserData();
-    const tweetVoice = await voiceData();
-    const sevenDaysData = Object.values(tweetVoice)?.filter(
+    const tweetVoiceData = user.tweetVoice;
+    const sevenDaysData = Object.values(tweetVoiceData)?.filter(
       (postData) => postData.createdAt > sevenDaysAgo
     );
     if (sevenDaysData) {
       const hasUserPosted = sevenDaysData.some(
-        (post) => post.userId === userData.userId
+        (post) => post.userId === user.userData.userId
       );
 
       if (hasUserPosted) {
@@ -156,47 +155,24 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (filterData) {
+    if (filterData && user) {
       hasPostedUser();
     }
   }, [filterData, canSeePost]);
 
   const handleLike = async (postId) => {
-    await updateLikeList(postId);
-
-    let updatedSinglePost = {};
-
-    const updatedData = filterData.map((post) => {
-      if (post?.id === postId) {
-        const isLiked = post.likeList?.includes(userId);
-        const updatedPost = {
-          ...post,
-          likeCount: isLiked ? post.likeCount - 1 : post.likeCount + 1,
-          likeList: isLiked
-            ? post.likeList.filter((id) => id !== userId)
-            : [...(post.likeList || []), userId],
-        };
-
-        updatedSinglePost = updatedPost;
-        setSinglePost(updatedPost);
-
-        return updatedPost;
-      }
-      return post;
-    });
-
-    setFilterData(updatedData);
+    await updateLikeList(postId, user.userData);
+    dispatch(updatePostLikeStatus({ postId, userId }));
   };
 
-  useEffect(() => {
-    hanldeCheckUserPost();
-  }, []);
+  const handleFetchData = async () => {
+    await dispatch(fetchCollectionData());
+  };
 
   const hanldeCheckUserPost = async () => {
     try {
-      const userData = await getCurrentUserData();
       const twentyFourHoursAgo = getTodayDate(24);
-      const tweetVoiceData = await voiceData();
+      const tweetVoiceData = user.tweetVoice;
 
       const postsInLast24Hours = Object.values(tweetVoiceData)?.filter(
         (postData) =>
@@ -204,28 +180,18 @@ const Dashboard = () => {
       );
 
       const hasUserPosted = postsInLast24Hours.some(
-        (post) => post.userId === userData.userId
+        (post) => post.userId === user.userData.userId
       );
-      setCanUploadPost(hasUserPosted);
+
+      if (hasUserPosted) {
+        toast.error("You can only post once in 24 hours");
+      } else {
+        setOpen(true);
+      }
     } catch (error) {
       console.error("An error occurred:", error);
     }
   };
-
-  const handleCheckPost = () => {
-    if (canUploadPost) {
-      toast.error("You can only post once in 24 hours");
-    } else {
-      setOpen(true);
-    }
-  };
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setShowMessage(true);
-  //   }, 7000);
-  //   return () => clearTimeout(timer);
-  // }, []);
 
   const handleCopySuccess = () => {
     toast.success("Link copied to clipboard!");
@@ -241,12 +207,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        loadSidebar={loadSidebar}
-      />
-      <div className={!sidebarOpen ? "lg:pl-72" : ""}>
+      <div className="side-space">
         <div className="p-[20px]">
           {loading ? (
             <Loader />
@@ -254,7 +215,7 @@ const Dashboard = () => {
             <div
               className={
                 canSeePost
-                  ? "shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] 2xl:max-w-[1300px] 2xl:w-[60%] xl:w-[70%] w-full sm:mx-auto relative"
+                  ? "shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] 2xl:max-w-[1300px] 2xl:w-[60%] xl:w-[70%] lg:w-[80%] w-full sm:mx-auto relative"
                   : "h-[calc(100vh-104px)] flex justify-center items-center"
               }
             >
@@ -428,7 +389,7 @@ const Dashboard = () => {
               <div className="fixed right-[30px] bottom-[30px]">
                 <button
                   onClick={() => {
-                    handleCheckPost();
+                    hanldeCheckUserPost();
                   }}
                   className="bg-[#EF9595] text-[#212121] w-[50px] h-[50px] rounded-md flex justify-center items-center"
                 >
@@ -440,6 +401,7 @@ const Dashboard = () => {
         </div>
       </div>
       <CreateTweet
+        handleFetchData={handleFetchData}
         open={open}
         setOpen={setOpen}
         showCloseBtn={true}
@@ -447,6 +409,7 @@ const Dashboard = () => {
         isSignup={false}
       />
       <ReplyTweet tweet={tweet} setTweet={setTweet} postId={postId} />
+
       <SinglePost
         post={post}
         setPost={setPost}
@@ -458,6 +421,7 @@ const Dashboard = () => {
         imageViewer={imageViewer}
         setImageViewer={setImageViewer}
         postData={singlePost}
+        setPostData={setSinglePost}
         handleLike={handleLike}
       />
     </div>

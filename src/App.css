@@ -165,3 +165,48 @@
   background: #ccc; 
   border-radius: 20px;
 }
+.side-space{
+  padding-left: 288px !important;
+}
+.toggle-sidebar .side-space{
+  padding-left: 0 !important;
+}
+@media (max-width:1024px) {
+  .side-space{
+    padding-left: 0 !important;
+  } 
+}
+
+
+/* sppinner start */
+.box-loader {
+  position: relative;
+  transition: 0.3s color, 0.3s border, 0.3s transform, 0.3s opacity;
+}
+.spinner {
+  border: 2px solid currentcolor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: 1s loader-03 linear infinite;
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  color: inherit;
+  vertical-align: middle;
+  pointer-events: none;
+
+}
+
+@keyframes loader-03 {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.show-sidebar .sidebar-main{
+  display: none;
+}
