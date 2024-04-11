@@ -71,8 +71,6 @@ const userSlice = createSlice({
       const postId = action.payload.postId;
       const userId = action.payload.userId;
 
-      console.log("state", state.data);
-
       const updateLikeStatusInCollection = (collection) => {
         if (collection[postId]) {
           const isLiked = collection[postId].likeList?.includes(userId);

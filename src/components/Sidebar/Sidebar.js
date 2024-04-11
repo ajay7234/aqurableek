@@ -45,7 +45,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
       setUserData(user.userData);
       dispatch(getUserPostData(user.userData.userId));
     }
-    console.log("user", user);
   }, [user, dispatch]);
 
   useEffect(() => {

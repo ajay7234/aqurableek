@@ -79,6 +79,11 @@ export const filterTweetVoiceData = async (
           highestScore = score;
           bestPost = { ...post, score: score };
         }
+      } else if (
+        score === highestScore &&
+        postCreationTime.isAfter(moment(bestPost.createdAt))
+      ) {
+        bestPost = { ...post, score: score };
       }
     }
   });
@@ -116,6 +121,11 @@ export const filterTweetCountryData = async (
           highestScore = score;
           bestPost = { ...post, score: score };
         }
+      } else if (
+        score === highestScore &&
+        postCreationTime.isAfter(moment(bestPost.createdAt))
+      ) {
+        bestPost = { ...post, score: score };
       }
     }
   });
@@ -154,6 +164,11 @@ export const filterEnglishPostData = async (
             highestScore = score;
             bestPost = { ...post, score: score };
           }
+        } else if (
+          score === highestScore &&
+          postCreationTime.isAfter(moment(bestPost.createdAt))
+        ) {
+          bestPost = { ...post, score: score };
         }
       }
     });
