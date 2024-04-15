@@ -54,6 +54,7 @@ export const uploadPostData = async (inputValue, userId, fileName) => {
         parentkey: null,
         childKey: null,
         lanCode: userData.wordslang === "Arabic worlds" ? "ar" : "auto",
+        viewsList: [userId],
         user: {
           displayName: userData.displayName,
           isOnline: false,

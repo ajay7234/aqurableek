@@ -107,10 +107,9 @@ const SignUp = () => {
       } else {
         try {
           const response = await createUser(Input.email, Input.password);
+          if (response.uid) {
+            setUserId(response.uid);
 
-          if (response?.uid) {
-            setUserId(response?.uid);
-            setOpen(true);
             const displayName = Input.firstName + " " + Input.lastName;
             const countryName = countries.find((c) => c.code === Input.country);
             const createDate = createdDate();
@@ -126,8 +125,10 @@ const SignUp = () => {
               Input.language.name,
               Input.gender.name,
               createDate,
-              response?.uid
+              response.uid
             );
+
+            setOpen(true);
           }
         } catch (error) {
           console.error(error.message);

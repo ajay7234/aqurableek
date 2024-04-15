@@ -3,6 +3,7 @@ import { getCurrentUserData } from "../helper/userProfileData";
 import {
   get,
   getDatabase,
+  limitToLast,
   orderByChild,
   query,
   ref,
@@ -76,7 +77,47 @@ export const fetchUserData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const userData = await getCurrentUserData();
-      return { userData };
+
+      const tweetVoiceRef = ref(database, `tweetVoice/${userData.wordslang}`);
+      const recentTweetVoiceQuery = query(
+        tweetVoiceRef,
+        orderByChild("createdAt")
+      );
+      const tweetVoiceSnapshot = await get(recentTweetVoiceQuery);
+      let tweetVoiceData = {};
+      if (tweetVoiceSnapshot.exists()) {
+        tweetVoiceSnapshot.forEach((child) => {
+          tweetVoiceData[child.key] = { id: child.key, ...child.val() };
+        });
+      }
+
+      return { tweetVoiceData };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const checkUserHasPosted = createAsyncThunk(
+  "user/checkUserHasPosted",
+  async (_, { rejectWithValue }) => {
+    try {
+      const userData = await getCurrentUserData();
+      const tweetVoiceRef = ref(database, `tweetVoice/${userData.wordslang}`);
+      const recentTweetVoiceQuery = query(
+        tweetVoiceRef,
+        orderByChild("createdAt"),
+        limitToLast(10)
+      );
+      const tweetVoiceSnapshot = await get(recentTweetVoiceQuery);
+      let tweetVoiceData = [];
+      if (tweetVoiceSnapshot.exists()) {
+        tweetVoiceSnapshot.forEach((child) => {
+          tweetVoiceData.push({ id: child.key, ...child.val() });
+        });
+      }
+      tweetVoiceData.reverse();
+      return { tweetVoiceData };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -150,6 +191,12 @@ const userSlice = createSlice({
       })
       .addCase(fetchUserData.fulfilled, (state, action) => {
         state.userData = action.payload.userData;
+      })
+      .addCase(checkUserHasPosted.fulfilled, (state, action) => {
+        state.tweetVoiceData = action.payload.tweetVoiceData; // Assuming tweetVoiceData is now an array
+      })
+      .addCase(checkUserHasPosted.rejected, (state, action) => {
+        state.error = action.payload; // Handle errors
       });
   },
 });

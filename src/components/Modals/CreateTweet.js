@@ -3,37 +3,44 @@ import { Dialog, Transition } from "@headlessui/react";
 import { IoClose } from "react-icons/io5";
 import { AiOutlinePicture } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { uploadPostData } from "../../helper/uploadData";
+import { useNavigate } from "react-router-dom";
+import Avtar from "../../assets/Images/user.png";
+import {
+  checkUserHasPosted,
+  fetchCollectionData,
+  fetchUserData,
+} from "../../redux/userSlice";
 
-const CreateTweet = ({
-  handleFetchData,
-  open,
-  setOpen,
-  showCloseBtn,
-  userId,
-  isSignup,
-}) => {
+const CreateTweet = ({ open, setOpen, showCloseBtn, userId, isSignup }) => {
   const [inputValue, setInputValue] = useState("");
   const [upload, setUpload] = useState();
   const [fileName, setFileName] = useState("");
-  const user = useSelector((state) => state.user.data);
+  const user = useSelector((state) => state.user.userData);
   const [isSending, setIsSending] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handlePostData = async (userId) => {
     setIsSending(true);
     if (inputValue === "") {
       toast.error("description is required for post");
+      setIsSending(false);
     } else if (inputValue.length < 17 || inputValue.length > 170) {
       toast.error("Post length should be between 17 and 170 characters.");
+      setIsSending(false);
     } else {
       await uploadPostData(inputValue, userId, fileName);
-      await handleFetchData();
+      if (isSignup) {
+        await dispatch(fetchUserData());
+        await dispatch(fetchCollectionData());
+        await dispatch(checkUserHasPosted());
+      }
       setOpen(false);
+      navigate("/dashboard");
     }
   };
-
-  useEffect(() => {}, [user]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -121,7 +128,7 @@ const CreateTweet = ({
                       <div className="min-h-[300px]">
                         <div className="flex items-start sm:gap-[20px] gap-[14px] mt-[20px] mb-[10px]">
                           <img
-                            src={user?.userData?.profilePic || user}
+                            src={user?.userData?.profilePic || Avtar}
                             alt="user"
                             className="sm:w-[40px] w-[40px] h-[39px] rounded-full object-cover"
                           />

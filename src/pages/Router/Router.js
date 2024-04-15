@@ -12,13 +12,13 @@ import { useAuth } from "../../AuthContext/AuthContext";
 import UserProfile from "../UserProfile/UserProfile";
 import ProtectedRoute from "../../protectedRoute/ProtectedRoute";
 import Loader from "../../components/Loader/Loader";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCollectionData, fetchUserData } from "../../redux/userSlice";
 
 const AuthRedirect = () => {
-  const { currentUser } = useAuth();
-
-  return currentUser ? <Navigate to="/dashboard" replace={true} /> : <Outlet />;
+  // const { currentUser } = useAuth();
+  const user = useSelector((state) => state.user.data);
+  return user ? <Navigate to="/dashboard" replace={true} /> : <Outlet />;
 };
 
 const Router = () => {
@@ -64,11 +64,11 @@ const Router = () => {
 
   return (
     <Routes>
-      <Route element={<AuthRedirect />}>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forget" element={<Forget />} />
-      </Route>
+      {/* <Route element={<AuthRedirect />}> */}
+      <Route path="/" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/forget" element={<Forget />} />
+      {/* </Route> */}
 
       {!loading && (
         <>

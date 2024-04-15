@@ -157,23 +157,23 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         <Link to={"/profile"}>
                           <img
                             className="w-[60px]"
-                            src={userProfile?.profilePic || Avatar}
+                            src={userData?.profilePic || Avatar}
                             alt="Your Company"
                           />
                         </Link>
                         <div className="mt-[12px]">
                           <p className="text-[18px] font-bold">
-                            {userProfile?.displayName}
+                            {userData?.displayName}
                           </p>
                           <p className=" text-[14px]">
-                            {userProfile?.userName || "@johndeo28842"}
+                            {userData?.userName || "@johndeo28842"}
                           </p>
                         </div>
                         <div className="flex items-center gap-[12px]">
                           <BsCalendar3 className="text-[#626161] text-[14px]" />
                           <p className="text-[#626161] text-[14px]">
                             Joined{" "}
-                            {moment(userProfile?.createdAt).format("MMMM YYYY")}
+                            {moment(userData?.createdAt).format("MMMM YYYY")}
                           </p>
                         </div>
                         <div className="flex gap-[30px] mt-4">
@@ -181,7 +181,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                             className="flex gap-2"
                             onClick={() => setFollowers(!followers)}
                           >
-                            <h2>{userProfile?.followerList?.length || 0}</h2>
+                            <h2>{userData?.followerList?.length || 0}</h2>
                             <button className="text-[#626161]">Follwers</button>
                           </div>
                           <div
@@ -259,24 +259,23 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   <Link to={"/profile"}>
                     <img
                       className="w-[60px] h-[60px] rounded-full object-cover"
-                      src={userProfile?.profilePic || Avatar}
+                      src={userData?.profilePic || Avatar}
                       alt="Your Company"
                     />
                   </Link>
                   <div className="mt-[12px]">
                     <p className="text-[18px] font-bold">
-                      {userProfile?.displayName}
+                      {userData?.displayName}
                     </p>
                     <p className=" text-[14px]">
-                      {userProfile?.userName || "@johndeo28842"}
+                      {userData?.userName || "@johndeo28842"}
                     </p>
                   </div>
                   <div className="mt-[20px]">
                     <div className="flex items-center gap-[12px]">
                       <BsCalendar3 className="text-[#626161] text-[14px]" />
                       <p className="text-[#626161] text-[14px]">
-                        Joined{" "}
-                        {moment(userProfile?.createdAt).format("MMMM YYYY")}
+                        Joined {moment(userData?.createdAt).format("MMMM YYYY")}
                       </p>
                     </div>
                     <div className="flex gap-[30px] mt-4">
@@ -284,14 +283,14 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         className="flex gap-2"
                         onClick={() => setFollowers(!followers)}
                       >
-                        <h2>{userProfile?.followerList?.length || 0}</h2>
+                        <h2>{userData?.followerList?.length || 0}</h2>
                         <button className="text-[#626161]">Follwers</button>
                       </div>
                       <div
                         className="flex gap-2"
                         onClick={() => setFollowing(!following)}
                       >
-                        <h2>{userProfile?.followingList?.length || 0}</h2>
+                        <h2>{userData?.followingList?.length || 0}</h2>
                         <button className="text-[#626161]">Following</button>
                       </div>
                     </div>

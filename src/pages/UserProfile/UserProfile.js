@@ -27,10 +27,7 @@ import {
 import { formatTimeDifference } from "../../helper/formateTiming";
 import Loader from "../../components/Loader/Loader";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchUserData,
-  updatePostLikeStatus,
-} from "../../redux/userSlice";
+import { fetchUserData, updatePostLikeStatus } from "../../redux/userSlice";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");

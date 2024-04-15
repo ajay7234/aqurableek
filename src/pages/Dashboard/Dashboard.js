@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React, { useEffect, useState, Fragment, useCallback } from "react";
 import { MdFlag, MdMessage, MdVerified } from "react-icons/md";
 import { TiArrowUpOutline } from "react-icons/ti";
 import { IoMdShare } from "react-icons/io";
@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { formatTimeDifference } from "../../helper/formateTiming";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchCollectionData,
+  checkUserHasPosted,
   updatePostLikeStatus,
 } from "../../redux/userSlice";
 import {
@@ -30,6 +30,7 @@ import {
   restPostByVoice,
 } from "../../helper/filterTweetUtils";
 import LoadingSkeleton from "../../components/loaadingSkeleton/loadingSkeleton";
+import Avtar from "../../assets/Images/user.png";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -49,6 +50,7 @@ const Dashboard = () => {
   const [imageViewer, setImageViewer] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.data);
+  const postToShow = useSelector((state) => state.user.tweetVoiceData);
   const [filteredTweetVoice, setFilteredTweetVoice] = useState([]);
   const navigate = useNavigate();
 
@@ -62,6 +64,15 @@ const Dashboard = () => {
       setUserId(user.userData.userId);
     }
   };
+
+  useEffect(() => {
+    if (!postToShow) {
+      dispatch(checkUserHasPosted());
+    } else if (postToShow && filteredTweetVoice.length === 0) {
+      setFilterData(postToShow);
+      setLoading(false);
+    }
+  }, [postToShow, filteredTweetVoice]);
 
   useEffect(() => {
     fetchLatestData();
@@ -155,18 +166,14 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (filterData && user) {
+    if (user) {
       hasPostedUser();
     }
-  }, [filterData, canSeePost]);
+  }, [user]);
 
   const handleLike = async (postId) => {
     await updateLikeList(postId, user.userData);
     dispatch(updatePostLikeStatus({ postId, userId }));
-  };
-
-  const handleFetchData = async () => {
-    await dispatch(fetchCollectionData());
   };
 
   const hanldeCheckUserPost = async () => {
@@ -235,7 +242,7 @@ const Dashboard = () => {
                       <div className="flex items-start sm:gap-[20px] gap-[12px] w-full">
                         <div onClick={() => handleNavigate(item)}>
                           <img
-                            src={item?.user?.profilePic || user}
+                            src={item?.user?.profilePic || Avtar}
                             alt="user"
                             className="sm:w-[50px] sm:min-w-[50px] w-[30px] min-w-[30px] sm:h-[50px] h-[30px] rounded-full object-cover"
                           />
@@ -407,7 +414,7 @@ const Dashboard = () => {
         </div>
       </div>
       <CreateTweet
-        handleFetchData={handleFetchData}
+        // handleFetchData={handleFetchData}
         open={open}
         setOpen={setOpen}
         showCloseBtn={true}

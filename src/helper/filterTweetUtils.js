@@ -4,7 +4,7 @@ import moment from "moment";
 const database = getDatabase();
 
 export const latestTweetVoiceData = async (tweetVoiceData, currentUser) => {
-  if (!tweetVoiceData || !currentUser) return [];
+  // if (!tweetVoiceData || !currentUser) return [];
   let posts = Object.entries(tweetVoiceData)
     .reduce((acc, [key, value]) => {
       const postData = { ...value, id: key };
@@ -60,7 +60,7 @@ export const filterTweetVoiceData = async (
   currentUser,
   hours
 ) => {
-  if (!tweetVoiceData || !currentUser || !hours) return null;
+  // if (!tweetVoiceData || !currentUser || !hours) return null;
 
   const cutoffTime = moment().subtract(hours, "hours");
   let bestPost = null;
@@ -89,7 +89,6 @@ export const filterTweetVoiceData = async (
   let language = currentUser.wordslang;
   let collection = "tweetVoice";
   await updateViewsList(bestPost, currentUser, language, collection);
-
   if (bestPost) {
     return bestPost;
   } else {
@@ -102,7 +101,7 @@ export const filterTweetCountryData = async (
   currentUser,
   hours
 ) => {
-  if (!tweetCountryData || !currentUser || !hours) return null;
+  // if (!tweetCountryData || !currentUser || !hours) return null;
   const cutoffTime = moment().subtract(hours, "hours");
   let bestPost = null;
   let highestScore = -1;
@@ -147,7 +146,7 @@ export const filterEnglishPostData = async (
   currentUser,
   hours
 ) => {
-  if (!englishPostData || !currentUser || !hours) return null;
+  // if (!englishPostData || !currentUser || !hours) return null;
 
   if (currentUser.wordslang === "Arabic worlds") {
     const cutoffTime = moment().subtract(hours, "hours");
@@ -193,7 +192,7 @@ export const filterEnglishPostData = async (
 };
 
 export const restPostByVoice = async (tweetVoiceData, currentUser) => {
-  if (!tweetVoiceData || !currentUser) return null;
+  // if (!tweetVoiceData || !currentUser) return null;
 
   let posts = Object.entries(tweetVoiceData)
     .map(([id, post]) => ({ id, ...post }))
@@ -222,22 +221,23 @@ export const restPostByVoice = async (tweetVoiceData, currentUser) => {
   for (let post of posts) {
     if (!post.viewsList) {
       post.viewsList = [];
+    } else if (!Object.isExtensible(post.viewsList)) {
     }
-    if (!post.viewsList.includes(currentUser.userId)) {
-      post.viewsList.push(currentUser.userId);
+    const newViewsList = Array.from(post.viewsList);
+    if (!newViewsList.includes(currentUser.userId)) {
+      newViewsList.push(currentUser.userId);
 
       const postRef = ref(
         database,
         `tweetVoice/${currentUser.wordslang}/${post.id}`
       );
-      await update(postRef, { viewsList: post.viewsList })
+      await update(postRef, { viewsList: newViewsList })
         .then(() => {})
         .catch((error) =>
           console.error("Failed to update post viewsList", error)
         );
     }
   }
-
   return posts;
 };
 
@@ -251,12 +251,12 @@ const calculateScore = (post) => {
 };
 
 const isBetterPost = (post, currentUser) => {
+  const viewsList = Array.isArray(post.viewsList) ? post.viewsList : [];
+
   return (
     post.Subject &&
-    post.Subject !== null &&
     post.Subject !== "1" &&
-    post.viewsList !== null &&
-    post.viewsList.includes(currentUser.userId) &&
+    viewsList.includes(currentUser.userId) && // Use the ensured array here
     (!post.parentkey || (post.parentkey && post.childkey)) &&
     (!post.reportList ||
       (!post.reportList.includes(currentUser.userId) &&
