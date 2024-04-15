@@ -6,7 +6,7 @@ import {
   update,
 } from "firebase/database";
 import "firebase/database";
-import { uploadImageToStorage } from "./uploadData";
+import { getTodayDate, uploadImageToStorage } from "./uploadData";
 import { getCurrentUserData } from "./userProfileData";
 import moment from "moment";
 
@@ -37,7 +37,6 @@ const updatePostLikeList = (postRef, userData) => {
 };
 
 export const updateLikeList = async (postId, userData) => {
-  // const userData = await getCurrentUserData();
   let response;
   const paths = [
     `tweetVoice/${userData.wordslang}/${postId}`,
@@ -211,20 +210,4 @@ const tryUpdatePost = async (path, inputValue, createdAt, userId, fileName) => {
     await update(postRef, postData);
   }
   return true;
-};
-
-export const voiceData = async () => {
-  const userData = await getCurrentUserData();
-  let response;
-  const postRef = ref(database, `tweetVoice/${userData.wordslang}`);
-  await get(postRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        response = snapshot.val();
-      }
-    })
-    .catch((error) => {
-      console.error("Failed to fetch user data", error);
-    });
-  return response;
 };

@@ -1,16 +1,30 @@
-import { createSlice, createAsyncThunk, current } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getCurrentUserData } from "../helper/userProfileData";
-import { get, getDatabase, ref } from "firebase/database";
+import {
+  get,
+  getDatabase,
+  orderByChild,
+  query,
+  ref,
+  startAt,
+} from "firebase/database";
+import { getTodayDate } from "../helper/uploadData";
 
 const database = getDatabase();
 
+const timestamp720HoursAgo = getTodayDate(720);
 export const fetchCollectionData = createAsyncThunk(
   "user/fetchCollectionData",
   async (_, { rejectWithValue }) => {
     try {
       const userData = await getCurrentUserData();
+
       const tweetVoiceRef = ref(database, `tweetVoice/${userData.wordslang}`);
-      const tweetVoiceSnapshot = await get(tweetVoiceRef);
+      const recentTweetVoiceQuery = query(
+        tweetVoiceRef,
+        orderByChild("createdAt")
+      );
+      const tweetVoiceSnapshot = await get(recentTweetVoiceQuery);
       let tweetVoiceData = {};
       if (tweetVoiceSnapshot.exists()) {
         tweetVoiceSnapshot.forEach((child) => {
@@ -19,8 +33,13 @@ export const fetchCollectionData = createAsyncThunk(
       }
 
       const tweetCountryRef = ref(database, `tweetCountry/${userData.country}`);
-      const tweetCountrySnapshot = await get(tweetCountryRef);
+      const recentTweetCountryQuery = query(
+        tweetCountryRef,
+        orderByChild("createdAt"),
+        startAt(timestamp720HoursAgo)
+      );
       let tweetCountryData = {};
+      const tweetCountrySnapshot = await get(recentTweetCountryQuery);
       if (tweetCountrySnapshot.exists()) {
         tweetCountrySnapshot.forEach((child) => {
           tweetCountryData[child.key] = { id: child.key, ...child.val() };
@@ -28,8 +47,13 @@ export const fetchCollectionData = createAsyncThunk(
       }
 
       let englishPostData = {};
-      const englishPost = ref(database, `/tweetVoice/English worlds`);
-      const englishSnapshot = await get(englishPost);
+      const englishPostRef = ref(database, `/tweetVoice/English worlds`);
+      const recentEnglishPostQuery = query(
+        englishPostRef,
+        orderByChild("createdAt"),
+        startAt(timestamp720HoursAgo)
+      );
+      const englishSnapshot = await get(recentEnglishPostQuery);
       if (englishSnapshot.exists()) {
         englishSnapshot.forEach((child) => {
           englishPostData[child.key] = { id: child.key, ...child.val() };

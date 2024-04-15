@@ -17,7 +17,6 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import ImageViewer from "../../components/Modals/ImageViewer";
 import { useNavigate } from "react-router-dom";
 import { formatTimeDifference } from "../../helper/formateTiming";
-import Loader from "../../components/Loader/Loader";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCollectionData,
@@ -30,6 +29,7 @@ import {
   latestTweetVoiceData,
   restPostByVoice,
 } from "../../helper/filterTweetUtils";
+import LoadingSkeleton from "../../components/loaadingSkeleton/loadingSkeleton";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -210,7 +210,13 @@ const Dashboard = () => {
       <div className="side-space">
         <div className="p-[20px]">
           {loading ? (
-            <Loader />
+            <>
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+            </>
           ) : (
             <div
               className={

@@ -3,10 +3,6 @@ import moment from "moment";
 
 const database = getDatabase();
 
-const getTodayDate = (hours) => {
-  return moment().subtract(hours, "hours");
-};
-
 export const latestTweetVoiceData = async (tweetVoiceData, currentUser) => {
   if (!tweetVoiceData || !currentUser) return [];
   let posts = Object.entries(tweetVoiceData)
@@ -39,14 +35,16 @@ export const latestTweetVoiceData = async (tweetVoiceData, currentUser) => {
     if (!post.viewsList) {
       post.viewsList = [];
     }
-    if (!post.viewsList.includes(currentUser.userId)) {
-      post.viewsList.push(currentUser.userId);
+
+    const newViewsList = Array.from(post.viewsList);
+    if (!newViewsList.includes(currentUser.userId)) {
+      newViewsList.push(currentUser.userId);
 
       const postRef = ref(
         database,
         `tweetVoice/${currentUser.wordslang}/${post.id}`
       );
-      await update(postRef, { viewsList: post.viewsList })
+      await update(postRef, { viewsList: newViewsList })
         .then(() => {})
         .catch((error) =>
           console.error("Failed to update post viewsList", error)
@@ -105,55 +103,12 @@ export const filterTweetCountryData = async (
   hours
 ) => {
   if (!tweetCountryData || !currentUser || !hours) return null;
-
   const cutoffTime = moment().subtract(hours, "hours");
   let bestPost = null;
   let highestScore = -1;
 
-  Object.values(tweetCountryData).forEach((post) => {
-    const postCreationTime = moment(post.createdAt);
-
-    if (postCreationTime.isAfter(cutoffTime)) {
-      const score = calculateScore(post);
-
-      if (score > highestScore) {
-        if (isBetterPost(post, currentUser)) {
-          highestScore = score;
-          bestPost = { ...post, score: score };
-        }
-      } else if (
-        score === highestScore &&
-        postCreationTime.isAfter(moment(bestPost.createdAt))
-      ) {
-        bestPost = { ...post, score: score };
-      }
-    }
-  });
-
-  let language = currentUser.country;
-  let collection = "tweetCountry";
-  await updateViewsList(bestPost, currentUser, language, collection);
-
-  if (bestPost) {
-    return bestPost;
-  } else {
-    return null;
-  }
-};
-
-export const filterEnglishPostData = async (
-  englishPostData,
-  currentUser,
-  hours
-) => {
-  if (!englishPostData || !currentUser || !hours) return null;
-
-  if (currentUser.wordslang === "Arabic worlds") {
-    const cutoffTime = moment().subtract(hours, "hours");
-    let bestPost = null;
-    let highestScore = -1;
-
-    Object.values(englishPostData).forEach((post) => {
+  if (Object.values(tweetCountryData).length !== 0) {
+    Object.values(tweetCountryData).forEach((post) => {
       const postCreationTime = moment(post.createdAt);
 
       if (postCreationTime.isAfter(cutoffTime)) {
@@ -173,12 +128,62 @@ export const filterEnglishPostData = async (
       }
     });
 
-    let language = currentUser.wordslang;
-    let collection = "tweetVoice";
+    let language = currentUser.country;
+    let collection = "tweetCountry";
     await updateViewsList(bestPost, currentUser, language, collection);
 
     if (bestPost) {
       return bestPost;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
+export const filterEnglishPostData = async (
+  englishPostData,
+  currentUser,
+  hours
+) => {
+  if (!englishPostData || !currentUser || !hours) return null;
+
+  if (currentUser.wordslang === "Arabic worlds") {
+    const cutoffTime = moment().subtract(hours, "hours");
+    let bestPost = null;
+    let highestScore = -1;
+
+    if (Object.values(englishPostData).length !== 0) {
+      Object.values(englishPostData).forEach((post) => {
+        const postCreationTime = moment(post.createdAt);
+
+        if (postCreationTime.isAfter(cutoffTime)) {
+          const score = calculateScore(post);
+
+          if (score > highestScore) {
+            if (isBetterPost(post, currentUser)) {
+              highestScore = score;
+              bestPost = { ...post, score: score };
+            }
+          } else if (
+            score === highestScore &&
+            postCreationTime.isAfter(moment(bestPost.createdAt))
+          ) {
+            bestPost = { ...post, score: score };
+          }
+        }
+      });
+
+      let language = currentUser.wordslang;
+      let collection = "tweetVoice";
+      await updateViewsList(bestPost, currentUser, language, collection);
+
+      if (bestPost) {
+        return bestPost;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -280,10 +285,3 @@ const updateViewsList = async (bestPost, currentUser, language, collection) => {
     await update(postRef, { viewsList: updatedViewsList });
   }
 };
-
-async function updatePostViewsList(wordslang, postId, viewsList) {
-  const postRef = ref(database, `tweetVoice/${wordslang}/${postId}`);
-  await update(postRef, { viewsList }).catch((error) =>
-    console.error("Failed to update post viewsList", error)
-  );
-}

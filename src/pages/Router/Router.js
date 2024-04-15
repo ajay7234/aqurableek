@@ -12,6 +12,8 @@ import { useAuth } from "../../AuthContext/AuthContext";
 import UserProfile from "../UserProfile/UserProfile";
 import ProtectedRoute from "../../protectedRoute/ProtectedRoute";
 import Loader from "../../components/Loader/Loader";
+import { useDispatch } from "react-redux";
+import { fetchCollectionData, fetchUserData } from "../../redux/userSlice";
 
 const AuthRedirect = () => {
   const { currentUser } = useAuth();
@@ -22,6 +24,7 @@ const AuthRedirect = () => {
 const Router = () => {
   const navigate = useNavigate();
   const { setCurrentUser, setUserData, loading, setLoading } = useAuth();
+  const dispatch = useDispatch();
 
   const getCurrentUserData = async (uid) => {
     const database = getDatabase();
@@ -29,6 +32,8 @@ const Router = () => {
       .then((snapshot) => {
         if (snapshot.exists()) {
           setUserData(snapshot.val());
+          dispatch(fetchUserData());
+          dispatch(fetchCollectionData());
         }
       })
       .catch((error) => {

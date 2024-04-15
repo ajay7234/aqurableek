@@ -1,9 +1,10 @@
+import { useState } from "react";
 import Router from "./pages/Router/Router";
-import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./components/Sidebar/Sidebar";
-import { useState } from "react";
+import "react-loading-skeleton/dist/skeleton.css";
+import "./App.css";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
