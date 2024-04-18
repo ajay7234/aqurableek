@@ -49,6 +49,7 @@ export const Login = () => {
       const email = Input.email;
       const password = Input.password;
       const logIn = await signInWithDetails(email, password);
+      localStorage.setItem("AuthToken", logIn.multiFactor.user.accessToken);
       if (logIn) {
         navigate("/dashboard");
       }

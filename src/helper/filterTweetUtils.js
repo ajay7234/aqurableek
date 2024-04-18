@@ -4,7 +4,8 @@ import moment from "moment";
 const database = getDatabase();
 
 export const latestTweetVoiceData = async (tweetVoiceData, currentUser) => {
-  // if (!tweetVoiceData || !currentUser) return [];
+  if (!tweetVoiceData || !currentUser) return [];
+
   let posts = Object.entries(tweetVoiceData)
     .reduce((acc, [key, value]) => {
       const postData = { ...value, id: key };
@@ -17,41 +18,52 @@ export const latestTweetVoiceData = async (tweetVoiceData, currentUser) => {
         (!postData.reportList.includes(currentUser.userId) &&
           postData.reportList.length <= 6);
       const hasViewList =
-        postData.viewsList && postData.viewsList.includes(currentUser.userId);
+        postData.viewsList && Array.isArray(postData.viewsList);
 
       if (
         hasValidSubject &&
         hasValidParentChildKeys &&
         excludeBasedOnReportList
-        // hasViewList
       ) {
-        acc.push(postData);
+        let updatedPostData = { ...postData };
+        if (!hasViewList) {
+          updatedPostData.viewsList = [currentUser.userId];
+        } else if (!postData.viewsList.includes(currentUser.userId)) {
+          updatedPostData.viewsList = [
+            ...postData.viewsList,
+            currentUser.userId,
+          ];
+        }
+        acc.push(updatedPostData);
       }
+
       return acc;
     }, [])
     .reverse();
 
-  for (let post of posts) {
+  const limit = Math.min(posts.length, 7);
+  for (let i = 0; i < limit; i++) {
+    let post = posts[i];
     if (!post.viewsList) {
       post.viewsList = [];
     }
-
-    const newViewsList = Array.from(post.viewsList);
-    if (!newViewsList.includes(currentUser.userId)) {
-      newViewsList.push(currentUser.userId);
-
+    if (!post.viewsList.includes(currentUser.userId)) {
+      post.viewsList.push(currentUser.userId);
+    }
+    if (post.viewsList) {
       const postRef = ref(
         database,
         `tweetVoice/${currentUser.wordslang}/${post.id}`
       );
-      await update(postRef, { viewsList: newViewsList })
-        .then(() => {})
+      await update(postRef, { viewsList: post.viewsList })
+        .then(() =>
+          console.log("ViewsList updated for post", post.id, "i----", i)
+        )
         .catch((error) =>
           console.error("Failed to update post viewsList", error)
         );
     }
   }
-
   return posts;
 };
 
@@ -60,13 +72,13 @@ export const filterTweetVoiceData = async (
   currentUser,
   hours
 ) => {
-  // if (!tweetVoiceData || !currentUser || !hours) return null;
+  if (!tweetVoiceData || !currentUser || !hours) return null;
 
   const cutoffTime = moment().subtract(hours, "hours");
   let bestPost = null;
   let highestScore = -1;
 
-  Object.values(tweetVoiceData).forEach((post) => {
+  Object.entries(tweetVoiceData).forEach(([postId, post]) => {
     const postCreationTime = moment(post.createdAt);
 
     if (postCreationTime.isAfter(cutoffTime)) {
@@ -75,21 +87,21 @@ export const filterTweetVoiceData = async (
       if (score > highestScore) {
         if (isBetterPost(post, currentUser)) {
           highestScore = score;
-          bestPost = { ...post, score: score };
+          bestPost = { id: postId, ...post };
         }
       } else if (
         score === highestScore &&
         postCreationTime.isAfter(moment(bestPost.createdAt))
       ) {
-        bestPost = { ...post, score: score };
+        bestPost = { id: postId, ...post };
       }
     }
   });
 
   let language = currentUser.wordslang;
   let collection = "tweetVoice";
-  await updateViewsList(bestPost, currentUser, language, collection);
   if (bestPost) {
+    await updateViewsList(bestPost, currentUser, language, collection);
     return bestPost;
   } else {
     return null;
@@ -101,13 +113,13 @@ export const filterTweetCountryData = async (
   currentUser,
   hours
 ) => {
-  // if (!tweetCountryData || !currentUser || !hours) return null;
+  if (!tweetCountryData || !currentUser || !hours) return null;
   const cutoffTime = moment().subtract(hours, "hours");
   let bestPost = null;
   let highestScore = -1;
 
   if (Object.values(tweetCountryData).length !== 0) {
-    Object.values(tweetCountryData).forEach((post) => {
+    Object.entries(tweetCountryData).forEach(([postId, post]) => {
       const postCreationTime = moment(post.createdAt);
 
       if (postCreationTime.isAfter(cutoffTime)) {
@@ -116,22 +128,21 @@ export const filterTweetCountryData = async (
         if (score > highestScore) {
           if (isBetterPost(post, currentUser)) {
             highestScore = score;
-            bestPost = { ...post, score: score };
+            bestPost = { id: postId, ...post, score: score };
           }
         } else if (
           score === highestScore &&
           postCreationTime.isAfter(moment(bestPost.createdAt))
         ) {
-          bestPost = { ...post, score: score };
+          bestPost = { id: postId, ...post, score: score };
         }
       }
     });
 
     let language = currentUser.country;
     let collection = "tweetCountry";
-    await updateViewsList(bestPost, currentUser, language, collection);
-
     if (bestPost) {
+      await updateViewsList(bestPost, currentUser, language, collection);
       return bestPost;
     } else {
       return null;
@@ -146,7 +157,7 @@ export const filterEnglishPostData = async (
   currentUser,
   hours
 ) => {
-  // if (!englishPostData || !currentUser || !hours) return null;
+  if (!englishPostData || !currentUser || !hours) return null;
 
   if (currentUser.wordslang === "Arabic worlds") {
     const cutoffTime = moment().subtract(hours, "hours");
@@ -192,7 +203,7 @@ export const filterEnglishPostData = async (
 };
 
 export const restPostByVoice = async (tweetVoiceData, currentUser) => {
-  // if (!tweetVoiceData || !currentUser) return null;
+  if (!tweetVoiceData || !currentUser) return null;
 
   let posts = Object.entries(tweetVoiceData)
     .map(([id, post]) => ({ id, ...post }))
@@ -256,7 +267,7 @@ const isBetterPost = (post, currentUser) => {
   return (
     post.Subject &&
     post.Subject !== "1" &&
-    viewsList.includes(currentUser.userId) && // Use the ensured array here
+    viewsList.includes(currentUser.userId) &&
     (!post.parentkey || (post.parentkey && post.childkey)) &&
     (!post.reportList ||
       (!post.reportList.includes(currentUser.userId) &&

@@ -17,8 +17,8 @@ const ReplyTweet = ({ tweet, setTweet, postId }) => {
   const user = useSelector((state) => state.user.data);
 
   const getPostData = async () => {
-    const data = await singlePostData(postId);
-    setPostData(data);
+    // const data = await singlePostData(postId);
+    // setPostData(data);
   };
 
   const commentData = async () => {

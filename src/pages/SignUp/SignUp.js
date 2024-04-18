@@ -107,6 +107,7 @@ const SignUp = () => {
       } else {
         try {
           const response = await createUser(Input.email, Input.password);
+
           if (response.uid) {
             setUserId(response.uid);
 
@@ -129,6 +130,7 @@ const SignUp = () => {
             );
 
             setOpen(true);
+            localStorage.setItem("AuthToken", response.accessToken);
           }
         } catch (error) {
           console.error(error.message);
@@ -138,110 +140,110 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-[30px]">
-      <div className="shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] 2xl:max-w-[1200px] md:w-[80%] sm:w-[90%] w-full sm:mx-auto sm:p-[20px] p-[14px] relative h-[calc(100vh-99px)] overflow-auto mx-3">
+    <div className='flex justify-center items-center mt-[30px]'>
+      <div className='shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] 2xl:max-w-[1200px] md:w-[80%] sm:w-[90%] w-full sm:mx-auto sm:p-[20px] p-[14px] relative h-[calc(100vh-99px)] overflow-auto mx-3'>
         <button
-          className="text-[#EF9595] text-[20px] absolute sm:left-[20px] left-[16px] sm:top-[35px] top-[24px]"
+          className='text-[#EF9595] text-[20px] absolute sm:left-[20px] left-[16px] sm:top-[35px] top-[24px]'
           onClick={() => navigate("/")}
         >
           <FaArrowLeft />
         </button>
-        <h1 className="text-[#EF9595] sm:text-[30px] text-[25px] font-bold text-center">
+        <h1 className='text-[#EF9595] sm:text-[30px] text-[25px] font-bold text-center'>
           Sign Up
         </h1>
-        <div className="mt-[70px] lg:px-[30px] ">
-          <div className="grid sm:grid-cols-2 items-center gap-[20px] md:flex-row flex-col">
+        <div className='mt-[70px] lg:px-[30px] '>
+          <div className='grid sm:grid-cols-2 items-center gap-[20px] md:flex-row flex-col'>
             <div>
               <input
-                type="text"
-                placeholder="First Name"
-                className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]"
-                name="firstName"
+                type='text'
+                placeholder='First Name'
+                className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]'
+                name='firstName'
                 value={Input.firstName}
                 onChange={handleChange}
               />
               {errors.firstName && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.firstName}
                 </div>
               )}
             </div>
             <div>
               <input
-                type="text"
-                placeholder="Last Name"
-                className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]"
-                name="lastName"
+                type='text'
+                placeholder='Last Name'
+                className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]'
+                name='lastName'
                 value={Input.lastName}
                 onChange={handleChange}
               />
               {errors.lastName && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.lastName}
                 </div>
               )}
             </div>
             <div>
               <input
-                type="email"
-                placeholder="Enter Email"
-                className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px] "
-                name="email"
+                type='email'
+                placeholder='Enter Email'
+                className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px] '
+                name='email'
                 value={Input.email}
                 onChange={handleChange}
               />
               {errors.email && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.email}
                 </div>
               )}
             </div>
             <div>
               <input
-                type="password"
-                placeholder="password (8 signs minimum)"
-                className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px]  focus:border-[#EF9595] border-[1px]"
-                name="password"
+                type='password'
+                placeholder='password (8 signs minimum)'
+                className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px]  focus:border-[#EF9595] border-[1px]'
+                name='password'
                 value={Input.password}
                 onChange={handleChange}
               />
               {errors.password && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.password}
                 </div>
               )}
             </div>
             <div>
               <input
-                type="password"
-                placeholder="Confirm Password"
-                className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]"
-                name="confirmPassword"
+                type='password'
+                placeholder='Confirm Password'
+                className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]'
+                name='confirmPassword'
                 value={Input.confirmPassword}
                 onChange={handleChange}
               />
               {errors.confirmPassword && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.confirmPassword}
                 </div>
               )}
             </div>
             <div>
               <input
-                type="date"
-                placeholder="Date Of Birth"
-                className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px]  focus:border-[#EF9595] border-[1px]"
-                name="bdate"
+                type='date'
+                placeholder='Date Of Birth'
+                className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px]  focus:border-[#EF9595] border-[1px]'
+                name='bdate'
                 value={Input.bdate}
                 onChange={handleChange}
               />
               {errors.bdate && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.bdate}
                 </div>
               )}
             </div>
-            <div className="w-full flag-select relative">
+            <div className='w-full flag-select relative'>
               <ReactFlagsSelect
                 // name="country"
                 // value={Input.bdate}
@@ -249,31 +251,31 @@ const SignUp = () => {
                 onSelect={(e) => handleChange(e, "country")}
                 searchable={true}
               />
-              <span className="absolute right-[10px] top-[50%] translate-y-[-50%] flex items-center pr-2">
-                <FaAngleDown className="text-[16px]" aria-hidden="true" />
+              <span className='absolute right-[10px] top-[50%] translate-y-[-50%] flex items-center pr-2'>
+                <FaAngleDown className='text-[16px]' aria-hidden='true' />
               </span>
               {errors.country && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.country}
                 </div>
               )}
             </div>
-            <div className="w-full">
+            <div className='w-full'>
               <Listbox
                 value={Input.language}
                 onChange={(e) => handleChange(e, "language")}
               >
                 {({ open }) => (
                   <>
-                    <div className="relative">
-                      <Listbox.Button className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px]  focus:border-[#EF9595] border-[1px] text-left">
-                        <span className="block truncate">
+                    <div className='relative'>
+                      <Listbox.Button className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px]  focus:border-[#EF9595] border-[1px] text-left'>
+                        <span className='block truncate'>
                           {Input.language.name}
                         </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-[10px] flex items-center pr-2">
+                        <span className='pointer-events-none absolute inset-y-0 right-[10px] flex items-center pr-2'>
                           <FaAngleDown
-                            className="text-[16px]"
-                            aria-hidden="true"
+                            className='text-[16px]'
+                            aria-hidden='true'
                           />
                         </span>
                       </Listbox.Button>
@@ -281,11 +283,11 @@ const SignUp = () => {
                       <Transition
                         show={open}
                         as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
+                        leave='transition ease-in duration-100'
+                        leaveFrom='opacity-100'
+                        leaveTo='opacity-0'
                       >
-                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                        <Listbox.Options className='absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'>
                           {people.map((person) => (
                             <Listbox.Option
                               key={person.id}
@@ -322,7 +324,7 @@ const SignUp = () => {
                 )}
               </Listbox>
               {errors.language && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.language}
                 </div>
               )}
@@ -334,17 +336,17 @@ const SignUp = () => {
               >
                 {({ open }) => (
                   <>
-                    <div className="relative">
-                      <Listbox.Button className="bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]">
-                        <span className="flex items-center">
-                          <span className="ml-3 block truncate">
+                    <div className='relative'>
+                      <Listbox.Button className='bg-[#f1f1f1] text-black outline-none rounded-[30px] h-[48px] w-full placeholder:text-[#323232] p-[10px_16px] focus:border-[#EF9595] border-[1px]'>
+                        <span className='flex items-center'>
+                          <span className='ml-3 block truncate'>
                             {Input.gender.name}
                           </span>
                         </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-[10px] flex items-center pr-2">
+                        <span className='pointer-events-none absolute inset-y-0 right-[10px] flex items-center pr-2'>
                           <FaAngleDown
-                            className="text-[16px]"
-                            aria-hidden="true"
+                            className='text-[16px]'
+                            aria-hidden='true'
                           />
                         </span>
                       </Listbox.Button>
@@ -352,11 +354,11 @@ const SignUp = () => {
                       <Transition
                         show={open}
                         as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
+                        leave='transition ease-in duration-100'
+                        leaveFrom='opacity-100'
+                        leaveTo='opacity-0'
                       >
-                        <Listbox.Options className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                        <Listbox.Options className='absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'>
                           {gender.map((person) => (
                             <Listbox.Option
                               key={person.id}
@@ -372,7 +374,7 @@ const SignUp = () => {
                             >
                               {({ selected, active }) => (
                                 <>
-                                  <div className="flex items-center">
+                                  <div className='flex items-center'>
                                     <span
                                       className={classNames(
                                         selected
@@ -406,32 +408,32 @@ const SignUp = () => {
                 )}
               </Listbox>
               {errors.gender && (
-                <div className="text-[#e50000] text-[13px] block ml-5">
+                <div className='text-[#e50000] text-[13px] block ml-5'>
                   {errors.gender}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="bg-[#323232] h-[1px] w-full mt-[30px]"></div>
-          <div className="mt-[24px] flex items-center gap-[10px] p-[10px]">
-            <label className="container">
+          <div className='bg-[#323232] h-[1px] w-full mt-[30px]'></div>
+          <div className='mt-[24px] flex items-center gap-[10px] p-[10px]'>
+            <label className='container'>
               I have read and agree to{" "}
-              <a href="#" className="text-blue-500 underline">
+              <a href='#' className='text-blue-500 underline'>
                 {" "}
                 The Terms and Condition
               </a>
               <input
-                type="checkbox"
-                name="radio"
+                type='checkbox'
+                name='radio'
                 checked={term}
                 onChange={() => setTerm(!term)}
               />
-              <span className="checkmark"></span>
+              <span className='checkmark'></span>
             </label>
           </div>
           <button
-            className="bg-[#EF9595] text-[#fff] h-[48px] font-semibold w-[50%] block mx-auto mt-[36px] rounded-[30px] active:bg-[#2c7cf7]"
+            className='bg-[#EF9595] text-[#fff] h-[48px] font-semibold w-[50%] block mx-auto mt-[36px] rounded-[30px] active:bg-[#2c7cf7]'
             onClick={handleSubmit}
           >
             Continue

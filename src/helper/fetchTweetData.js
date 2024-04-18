@@ -1,13 +1,15 @@
 import {
   get,
   getDatabase,
+  onValue,
+  orderByChild,
+  query,
   ref,
   runTransaction,
   update,
 } from "firebase/database";
 import "firebase/database";
-import { getTodayDate, uploadImageToStorage } from "./uploadData";
-import { getCurrentUserData } from "./userProfileData";
+import { uploadImageToStorage } from "./uploadData";
 import moment from "moment";
 
 const database = getDatabase();
@@ -37,7 +39,7 @@ const updatePostLikeList = (postRef, userData) => {
 };
 
 export const updateLikeList = async (postId, userData) => {
-  let response;
+  let responseData = {};
   const paths = [
     `tweetVoice/${userData.wordslang}/${postId}`,
     `tweetVoice/English worlds/${postId}`,
@@ -51,14 +53,19 @@ export const updateLikeList = async (postId, userData) => {
       await updatePostLikeList(postRef, userData);
       const updatedSnapshot = await get(postRef);
       if (updatedSnapshot.exists()) {
-        response = updatedSnapshot.val();
+        const postData = updatedSnapshot.val();
+        responseData = {
+          id: postId,
+          ...postData,
+        };
       }
     }
   }
-  return response;
+
+  return responseData;
 };
 
-export const updateUserData = async (userDetails) => {
+export const updateUserData = async (userDetails, userProfile) => {
   const {
     firstName,
     lastName,
@@ -74,7 +81,6 @@ export const updateUserData = async (userDetails) => {
     image,
   } = userDetails;
 
-  const userData = await getCurrentUserData();
   let imageUrl;
 
   if (image) {
@@ -90,17 +96,17 @@ export const updateUserData = async (userDetails) => {
     country: country,
     wordslang: wordslang,
     gender: gender,
-    age: age,
-    bio: bio,
+    age: age || "",
+    bio: bio || "",
     updatedAt: updatedAt,
-    userId: userData.userId,
+    userId: userProfile.userId,
   };
   if (imageUrl) {
     updateObject.profilePic = imageUrl;
   }
   try {
-    const userRef = ref(database, "/profile/" + userData.userId);
-    await update(userRef, updateObject);
+    const userRef = ref(database, "/profile/" + userProfile.userId);
+    const response = await update(userRef, updateObject);
     return true;
   } catch (error) {
     console.error(error);
@@ -113,43 +119,45 @@ export const createdDate = () => {
   return currentDateTime;
 };
 
-export const singlePostData = async (postId) => {
-  const userData = await getCurrentUserData();
-  if (!userData) {
-    return null;
-  }
-
-  let response = null;
-
-  const refsToTry = [
-    `/tweetVoice/${userData.wordslang}/${postId}`,
-    `/tweetVoice/English worlds/${postId}`,
-    `/tweetCountry/${userData.country}/${postId}`,
-  ];
-
-  for (let path of refsToTry) {
-    const dataRef = ref(database, path);
-    const snapshot = await get(dataRef).catch(console.log);
-    if (snapshot?.exists()) {
-      const data = snapshot.val();
-      if (data.user) {
-        response = data;
-        break;
-      }
-    }
-  }
-
-  return response;
-};
+//export const singlePostData = async (postId) => {
+//  const userData = await getCurrentUserData();
+//  console.log("called getCurrentUserData from fetchtweetdata");
+//  if (!userData) {
+//    return null;
+//  }
+//
+//  let response = null;
+//
+//  const refsToTry = [
+//    `/tweetVoice/${userData.wordslang}/${postId}`,
+//    `/tweetVoice/English worlds/${postId}`,
+//    `/tweetCountry/${userData.country}/${postId}`,
+//  ];
+//
+//  for (let path of refsToTry) {
+//    const dataRef = ref(database, path);
+//    const snapshot = await get(dataRef).catch(console.log);
+//    if (snapshot?.exists()) {
+//      const data = snapshot.val();
+//      if (data.user) {
+//        response = data;
+//        break;
+//      }
+//    }
+//  }
+//
+//  return response;
+//};
 
 export const replyCommentData = async (
   postId,
   inputValue,
   createdAt,
-  fileName
+  fileName,
+  userData
 ) => {
   try {
-    const userData = await getCurrentUserData();
+    //const userData = await getCurrentUserData();
 
     await tryUpdatePost(
       `tweetVoice/${userData.wordslang}/${postId}`,
@@ -210,4 +218,17 @@ const tryUpdatePost = async (path, inputValue, createdAt, userId, fileName) => {
     await update(postRef, postData);
   }
   return true;
+};
+
+export const getVoiceData = async (userData) => {
+  const tweetVoiceRef = ref(database, `tweetVoice/${userData.wordslang}`);
+  const recentTweetVoiceQuery = query(tweetVoiceRef, orderByChild("createdAt"));
+  let tweetVoiceData = {};
+  onValue(recentTweetVoiceQuery, (snapshot) => {
+    if (snapshot.exists()) {
+      tweetVoiceData = snapshot.val();
+    }
+  });
+
+  return tweetVoiceData;
 };

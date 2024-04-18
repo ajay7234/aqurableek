@@ -13,7 +13,7 @@ export const createUser = async (email, password) => {
       password
     );
     const user = userCredential.user;
-    return user?.multiFactor?.user;
+    return user.multiFactor.user;
   } catch (error) {
     let errorMessage = error.message;
     errorMessage = errorMessage.replace("Firebase: ", "");
@@ -47,6 +47,7 @@ export const signUpWithDetails = async (
       wordslang: wordslang,
       gender: gender,
       createdAt: createdAt,
+      userId: userId,
     });
   } catch (error) {
     toast.error(error.message);
@@ -56,8 +57,8 @@ export const signUpWithDetails = async (
 
 export const signInWithDetails = async (email, password) => {
   try {
-    await auth.signInWithEmailAndPassword(email, password);
-    return true;
+    const response = await auth.signInWithEmailAndPassword(email, password);
+    return response.user;
   } catch (error) {
     let errorMessage = error.message;
     errorMessage = errorMessage.replace("Firebase: ", "");

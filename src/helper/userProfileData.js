@@ -1,6 +1,7 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { get, getDatabase, ref } from "firebase/database";
+import { get, getDatabase, onValue, ref } from "firebase/database";
 import { auth } from "../Firebase/Firebase";
+import { setUserData } from "../redux/userSlice";
 
 const database = getDatabase();
 

@@ -16,69 +16,41 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCollectionData, fetchUserData } from "../../redux/userSlice";
 
 const AuthRedirect = () => {
-  // const { currentUser } = useAuth();
+  const { currentUser, currentUserPost, setCurrentUserPost } = useAuth();
   const user = useSelector((state) => state.user.data);
-  return user ? <Navigate to="/dashboard" replace={true} /> : <Outlet />;
+  return user ? <Navigate to='/dashboard' replace={true} /> : <Outlet />;
 };
 
 const Router = () => {
   const navigate = useNavigate();
-  const { setCurrentUser, setUserData, loading, setLoading } = useAuth();
+  const {
+    setCurrentUser,
+    setUserData,
+    loading,
+    setLoading,
+    currentUser,
+    userData,
+  } = useAuth();
   const dispatch = useDispatch();
-
-  const getCurrentUserData = async (uid) => {
-    const database = getDatabase();
-    get(ref(database, `/profile/${uid}`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          setUserData(snapshot.val());
-          dispatch(fetchUserData());
-          dispatch(fetchCollectionData());
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch user data", error);
-      });
-  };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
-        getCurrentUserData(user.uid);
-      } else {
-        if (!["/", "/signup", "/forget"].includes(window.location.pathname)) {
-          navigate("/");
-        }
-        setCurrentUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [navigate, setCurrentUser, setUserData, loading]);
-
-  if (loading) {
-    return <Loader />;
-  }
 
   return (
     <Routes>
-      {/* <Route element={<AuthRedirect />}> */}
-      <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/forget" element={<Forget />} />
-      {/* </Route> */}
+      <Route
+        path='/'
+        element={!localStorage.getItem("AuthToken") ? <Login /> : <Dashboard />}
+      />
+      <Route path='/signup' element={<SignUp />} />
+      <Route path='/forget' element={<Forget />} />
 
-      {!loading && (
-        <>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/user-profile/:id" element={<UserProfile />} />
-          </Route>
-        </>
-      )}
+      {/* {!loading && ( */}
+      <>
+        <Route element={<ProtectedRoute />}>
+          <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/profile' element={<Profile />} />
+          <Route path='/user-profile/:id' element={<UserProfile />} />
+        </Route>
+      </>
+      {/* )} */}
     </Routes>
   );
 };

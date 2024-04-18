@@ -7,6 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [currentUserPost, setCurrentUserPost] = useState({});
   const [loading, setLoading] = useState(true);
 
   const value = {
@@ -14,6 +15,8 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser,
     userData,
     setUserData,
+    currentUserPost,
+    setCurrentUserPost,
     loading,
     setLoading,
   };

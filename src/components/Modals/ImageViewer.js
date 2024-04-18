@@ -26,26 +26,30 @@ const ImageViewer = ({
   const [postId, setPostId] = useState("");
   const user = useSelector((state) => state.user.data);
 
+  const userData = useSelector((state) => state.user.data?.userData);
+  const tweetVoice = useSelector((state) => state.user.tweetVoice);
+  const tweetCountry = useSelector((state) => state.user.tweetCountry);
+  const tweetEnglish = useSelector((state) => state.user.englishPost);
+
   const handleCopySuccess = () => {
     toast.success("Link copied to clipboard!");
   };
-  useEffect(() => {}, [user]);
 
   useEffect(() => {
-    if (user) {
-      const tweetVoiceData = user.tweetVoice[`${postData.id}`];
-      const tweetCountryData = user.tweetCountry[`${postData.id}`];
-      const englishPostData = user.englishPost[`${postData.id}`];
+    if (userData) {
+      const tweetVoiceData = tweetVoice[`${postData.id}`];
+      const tweetCountryData = tweetCountry[`${postData.id}`];
+      const englishPostData = tweetEnglish[`${postData.id}`];
 
-      if (tweetVoiceData?.user) {
+      if (tweetVoiceData) {
         setPostData(tweetVoiceData);
-      } else if (tweetCountryData?.user) {
+      } else if (tweetCountryData) {
         setPostData(tweetCountryData);
-      } else if (englishPostData?.user) {
+      } else if (englishPostData) {
         setPostData(englishPostData);
       }
     }
-  }, [user]);
+  }, [userData, tweetVoice, tweetCountry, tweetEnglish]);
 
   return (
     <div>

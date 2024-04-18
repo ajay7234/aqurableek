@@ -54,14 +54,14 @@ export const uploadPostData = async (inputValue, userId, fileName) => {
         parentkey: null,
         childKey: null,
         lanCode: userData.wordslang === "Arabic worlds" ? "ar" : "auto",
-        viewsList: [userId],
+        //viewsList: [],
         user: {
           displayName: userData.displayName,
           isOnline: false,
           isVerified: false,
           userName: userData.userName || "",
           userId: userId,
-          // age: userData.age,
+          age: userData.age || "",
         },
       };
 
