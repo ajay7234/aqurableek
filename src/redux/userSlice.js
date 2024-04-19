@@ -29,10 +29,8 @@ export const fetchCollectionData = createAsyncThunk(
         if (snapshot.exists()) {
           data = snapshot.val();
           currentUser = data[currentUserId];
-          console.log("current user:", currentUser);
           dispatch(setAllUsersData(data));
           dispatch(setUserData(currentUser));
-        } else {
         }
       });
 

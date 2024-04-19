@@ -50,10 +50,6 @@ function SinglePost({ post, setPost, postData, setPostData, handleLike }) {
     }
   }, [userData, tweetVoice, tweetCountry, tweetEnglish]);
 
-  useEffect(() => {
-    console.log("postdata", postData);
-  }, [postData]);
-
   const handleNavigate = (item) => {
     if (item.user.userId === userData.userId) {
       navigate("/profile");

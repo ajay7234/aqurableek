@@ -70,7 +70,6 @@ const UserProfile = () => {
     const userPosts = tweetVoicePosts.filter(
       (post) => post.userId === params.id
     );
-    console.log("userpost", userPosts);
     setUserData(userProfile);
     setPostData(userPosts.reverse());
 

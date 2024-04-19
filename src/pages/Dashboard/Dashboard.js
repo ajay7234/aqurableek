@@ -130,7 +130,6 @@ const Dashboard = () => {
         uniqueResults = filterAndAddUnique(results);
         setFilterData((prev) => removeDuplicates([...prev, ...uniqueResults]));
 
-        console.log("All data fetched and processed.");
       } catch (error) {
         console.error("Error fetching data", error);
       } finally {
@@ -170,7 +169,7 @@ const Dashboard = () => {
     if (tweetVoice && userData) {
       hasPostedUser();
     }
-  }, [tweetVoice, userData]);
+  }, [tweetVoice]);
 
   const handleLike = async (postId) => {
     const data = await updateLikeList(postId, userData);

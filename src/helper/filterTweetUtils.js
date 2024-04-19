@@ -56,9 +56,7 @@ export const latestTweetVoiceData = async (tweetVoiceData, currentUser) => {
         `tweetVoice/${currentUser.wordslang}/${post.id}`
       );
       await update(postRef, { viewsList: post.viewsList })
-        .then(() =>
-          console.log("ViewsList updated for post", post.id, "i----", i)
-        )
+        .then(() => {})
         .catch((error) =>
           console.error("Failed to update post viewsList", error)
         );
