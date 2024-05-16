@@ -26,6 +26,7 @@ import {
 } from "../../helper/filterTweetUtils";
 import LoadingSkeleton from "../../components/loaadingSkeleton/loadingSkeleton";
 import Avtar from "../../assets/Images/user.png";
+import HeadTags from "../../headTags/HeadTags";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -44,6 +45,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [imageViewer, setImageViewer] = useState(false);
   const [filteredTweetVoice, setFilteredTweetVoice] = useState([]);
+  const [headTag, setHeadTag] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.userData);
@@ -210,8 +212,15 @@ const Dashboard = () => {
     }
   };
 
+  const handleMenuClick = (item) => {
+    console.log("item", item);
+    setHeadTag(item);
+  };
+
   return (
     <div>
+      <HeadTags headTag={headTag} />
+
       <div className="side-space">
         <div className="p-[20px]">
           {loading ? (
@@ -324,6 +333,7 @@ const Dashboard = () => {
                               //   setTweet(true);
                               //   setPostId(item?.id);
                               // }}
+
                               className="flex sm:gap-[16px] gap-[6px] sm:text-[16px] text-[14px] items-center"
                             >
                               <MdMessage className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
@@ -343,7 +353,12 @@ const Dashboard = () => {
                                 className="relative inline-block text-left"
                               >
                                 <div className="flex items-center">
-                                  <Menu.Button className="text-[14px]">
+                                  <Menu.Button
+                                    className="text-[14px]"
+                                    onClick={() => {
+                                      handleMenuClick(item);
+                                    }}
+                                  >
                                     <IoMdShare className="sm:text-[24px] text-[20px] text-[#5c5c5c]" />
                                   </Menu.Button>
                                 </div>
