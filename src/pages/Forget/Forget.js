@@ -57,7 +57,7 @@ const Forget = () => {
       <div className="sm:shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] max-w-[500px] w-full mx-auto sm:p-[20px] p-[10px] relative">
         <button
           className="text-[#EF9595] text-[20px] absolute sm:left-[20px] left-[8px] sm:top-[35px] top-[22px]"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/login")}
         >
           <FaArrowLeft />
         </button>

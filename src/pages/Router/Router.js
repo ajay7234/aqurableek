@@ -3,55 +3,58 @@ import SignUp from "../SignUp/SignUp";
 import Forget from "../Forget/Forget";
 import Profile from "../Profile/Profile";
 import Dashboard from "../Dashboard/Dashboard";
-import React, { useEffect } from "react";
-import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../Firebase/Firebase";
-import { get, getDatabase, ref } from "firebase/database";
-import { useAuth } from "../../AuthContext/AuthContext";
+import React, { useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import UserProfile from "../UserProfile/UserProfile";
 import ProtectedRoute from "../../protectedRoute/ProtectedRoute";
-import Loader from "../../components/Loader/Loader";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCollectionData, fetchUserData } from "../../redux/userSlice";
-
-const AuthRedirect = () => {
-  const { currentUser, currentUserPost, setCurrentUserPost } = useAuth();
-  const user = useSelector((state) => state.user.data);
-  return user ? <Navigate to='/dashboard' replace={true} /> : <Outlet />;
-};
+import Home from "../Home/Home";
+import NotFound from "../not-found/NotFound";
+import Post from "../post/Post";
 
 const Router = () => {
-  const navigate = useNavigate();
-  const {
-    setCurrentUser,
-    setUserData,
-    loading,
-    setLoading,
-    currentUser,
-    userData,
-  } = useAuth();
-  const dispatch = useDispatch();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("AuthToken");
+    setIsAuthenticated(!!token);
+  }, []);
 
   return (
-    <Routes>
-      <Route
-        path='/'
-        element={!localStorage.getItem("AuthToken") ? <Login /> : <Dashboard />}
-      />
-      <Route path='/signup' element={<SignUp />} />
-      <Route path='/forget' element={<Forget />} />
-
-      {/* {!loading && ( */}
-      <>
+    <>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Home />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignUp />
+          }
+        />
+        <Route
+          path="/forget"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Forget />
+          }
+        />
+        <Route path="/*" element={<NotFound />} />
         <Route element={<ProtectedRoute />}>
-          <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/profile' element={<Profile />} />
-          <Route path='/user-profile/:id' element={<UserProfile />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/user-profile/:id" element={<UserProfile />} />
+          <Route path="/post/:id" element={<Post />} />
         </Route>
-      </>
-      {/* )} */}
-    </Routes>
+      </Routes>
+    </>
   );
 };
 

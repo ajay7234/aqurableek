@@ -13,25 +13,16 @@ const LoadingSkeleton = () => {
               <h2>
                 <Skeleton width={140} height={20} />
               </h2>
-              {/* <Skeleton circle={true} height={14} width={14} /> */}
             </div>
             <div className="flex gap-[6px] items-center flex-wrap">
               <p>
                 <Skeleton width={100} height={12} />
               </p>
-              {/* <div className="w-[4px] h-[4px] rounded-full bg-[#a1a1a1]" />
-              <p>
-                <Skeleton width={150} height={12} />
-              </p> */}
             </div>
 
             <p>
               <Skeleton count={2} />
             </p>
-            {/* <div className="flex justify-end">
-            <Skeleton height={170} width={300} />
-          </div> */}
-
             <div className="flex items-center gap-[24px] mt-[20px] flex-wrap">
               <div className="flex gap-[6px] items-center">
                 <Skeleton circle={true} height={24} width={24} />
@@ -45,15 +36,9 @@ const LoadingSkeleton = () => {
                 <Skeleton circle={true} height={24} width={24} />
                 <Skeleton width={30} height={16} />
               </div>
-              <div className="flex gap-[6px] items-center">
-                <Skeleton circle={true} height={24} width={24} />
-              </div>
             </div>
           </div>
         </div>
-        {/* <p>
-          <Skeleton width={200} height={12} />
-        </p> */}
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ export const fetchCollectionData = createAsyncThunk(
   async (_, { dispatch, getState, rejectWithValue }) => {
     try {
       const userData = await getCurrentUserData();
+
       const currentUserId = auth.currentUser.uid;
       const userDataRef = ref(database, `profile/`);
       let data = {};

@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   signInWithDetails,
   signInWithGoogleProvider,
 } from "../../helper/authentication";
+import { useAuth } from "../../authContext/AuthContext";
 
 export const Login = () => {
   const [Input, setInput] = useState({
@@ -17,6 +19,7 @@ export const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,10 +51,16 @@ export const Login = () => {
     if (Object.keys(newErrors).length === 0) {
       const email = Input.email;
       const password = Input.password;
-      const logIn = await signInWithDetails(email, password);
-      localStorage.setItem("AuthToken", logIn.multiFactor.user.accessToken);
-      if (logIn) {
-        navigate("/dashboard");
+      try {
+        const logIn = await signInWithDetails(email, password);
+        localStorage.setItem("AuthToken", logIn.multiFactor.user.accessToken);
+        setIsAuthenticated(true);
+
+        if (logIn) {
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        console.log("error occurred while login to this app", error);
       }
     }
   };
@@ -66,9 +75,9 @@ export const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="sm:shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] bg-[#fff] rounded-[10px] max-w-[500px] w-full mx-auto p-[20px] relative">
-        <button className="text-[#EF9595] text-[20px] absolute left-[20px] top-[35px]">
+        {/*<button className="text-[#EF9595] text-[20px] absolute left-[20px] top-[35px]">
           <FaArrowLeft />
-        </button>
+        </button>*/}
         <h1 className="text-[#EF9595] text-[30px] font-bold text-center">
           Sign In
         </h1>
