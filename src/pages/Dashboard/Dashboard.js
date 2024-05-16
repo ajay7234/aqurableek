@@ -212,6 +212,8 @@ const Dashboard = () => {
     }
   };
 
+  useEffect(() => {}, [headTag]);
+
   const handleMenuClick = (item) => {
     console.log("item", item);
     setHeadTag(item);
@@ -219,7 +221,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <HeadTags headTag={headTag} />
+      {Object.values(headTag).length !== 0 && <HeadTags headTag={headTag} />}
 
       <div className="side-space">
         <div className="p-[20px]">
