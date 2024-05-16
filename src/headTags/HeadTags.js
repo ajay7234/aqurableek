@@ -34,7 +34,7 @@ const HeadTags = (props) => {
         />
         <meta
           property="og:url"
-          content={`https://aqrableek.com/posts/${props.headTag.id}`}
+          content={`https://aqurableek-5rhg.vercel.app/post/${props.headTag.id}`}
         />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Aqrableek" />
@@ -48,7 +48,7 @@ const HeadTags = (props) => {
         />
         <meta
           name="twitter:url"
-          content={`https://aqrableek.com/posts/${props.id}`}
+          content={`https://aqurableek-5rhg.vercel.app/post/${props.id}`}
         />
       </Helmet>
     </div>
