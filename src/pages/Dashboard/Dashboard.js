@@ -362,7 +362,7 @@ const Dashboard = () => {
                                       <Menu.Item>
                                         {({ active }) => (
                                           <a
-                                            href={`https://www.facebook.com/sharer/sharer.php?u=https://aqrableek.com/posts/${item.id}`}
+                                            href={`https://www.facebook.com/sharer/sharer.php?u=https://aqrableek.com/post/${item.id}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className={
@@ -381,7 +381,7 @@ const Dashboard = () => {
                                       <Menu.Item>
                                         {({ active }) => (
                                           <a
-                                            href={`https://twitter.com/intent/tweet?url=https://aqrableek.com/posts/${
+                                            href={`https://twitter.com/intent/tweet?url=https://aqrableek.com/post/${
                                               item.id
                                             }&text=${encodeURIComponent(
                                               item.description
@@ -407,7 +407,7 @@ const Dashboard = () => {
                                             // href={`/post/${item.id}`}
                                             href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                                               "Check out this post! " +
-                                                "https://aqrableek.com/posts/" +
+                                                "https://aqrableek.com/post/" +
                                                 item.id
                                             )}`}
                                             target="_blank"
