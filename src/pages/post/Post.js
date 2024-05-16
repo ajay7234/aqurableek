@@ -72,7 +72,7 @@ function Post() {
           />
           <meta
             property="og:url"
-            content={`https://aqrableek.com/posts/${postData.id}`}
+            content={`https://aqrableek.com/posts/${params.id}`}
           />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="Aqrableek" />
@@ -86,7 +86,7 @@ function Post() {
           />
           <meta
             name="twitter:url"
-            content={`https://aqrableek.com/posts/${postData.id}`}
+            content={`https://aqrableek.com/posts/${params.id}`}
           />
         </Helmet>
       )}
