@@ -47,17 +47,17 @@ function Post() {
       }
     }
 
-    // if (postData) {
-    //   axios
-    //     .post("/post/:id", postData)
-    //     .then((response) => {
-    //       console.log("respo", response);
-    //       console.log("Post data sent successfully");
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error sending post data:", error);
-    //     });
-    // }
+    if (postData) {
+      axios
+        .post("/post/:id", postData)
+        .then((response) => {
+          console.log("respo", response);
+          console.log("Post data sent successfully");
+        })
+        .catch((error) => {
+          console.error("Error sending post data:", error);
+        });
+    }
     console.log("postData", postData);
   }, [userData, tweetVoice, tweetCountry, tweetEnglish, postData]);
 
