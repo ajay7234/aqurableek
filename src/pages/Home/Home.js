@@ -9,20 +9,25 @@ import Screenshort3 from "../../assets/Images/screen3.jpg";
 import Pic1 from "../../assets/Images/pic1.png";
 import Pic2 from "../../assets/Images/pic2.png";
 import Content from "../../assets/Images/content.png";
-import CustomerService from "../../assets/Images/customer-service.png";
-import OnlineStore from "../../assets/Images/online-shop.png";
 import WeddingCouple from "../../assets/Images/wedding-couple.png";
 import GooglePlay from "../../assets/Images/google.png";
 import FaceBookImg from "../../assets/Images/facebook.png";
 import MailImg from "../../assets/Images/gmail.png";
 import TwitterImg from "../../assets/Images/twitter.png";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const Home = () => {
   const navigate = useNavigate();
   return (
     <>
       <div>
+        <Helmet>
+          <meta
+            property="og:image"
+            content={`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6TaCLCqU4K0ieF27ayjl51NmitWaJAh_X0r1rLX4gMvOe0MDaYw&s__META_OG_IMAGE__`}
+          />
+        </Helmet>
         <div className="bg-[#f66666] pt-[30px] pb-[15px]">
           <div className="flex justify-center ">
             <button

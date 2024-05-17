@@ -14,6 +14,7 @@ import { formatTimeDifference } from "../../helper/formateTiming";
 import NotFound from "../../assets/Images/not-found.png";
 import { updateLikeList } from "../../helper/fetchTweetData";
 import ImageViewer from "../../components/Modals/ImageViewer";
+import axios from "axios";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -46,6 +47,17 @@ function Post() {
       }
     }
 
+    // if (postData) {
+    //   axios
+    //     .post("/post/:id", postData)
+    //     .then((response) => {
+    //       console.log("respo", response);
+    //       console.log("Post data sent successfully");
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error sending post data:", error);
+    //     });
+    // }
     console.log("postData", postData);
   }, [userData, tweetVoice, tweetCountry, tweetEnglish, postData]);
 
@@ -61,12 +73,17 @@ function Post() {
     const data = await updateLikeList(postId, userData);
     setPostData(data);
   };
+
   return (
     <div>
       {postData && (
         <Helmet>
+          <link
+            rel="canonical"
+            href={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
+          />
+          <link rel="og:image" href={`${postData?.user?.profilePic}`} />
           <meta name="description" content="__META_OG_DESCRIPTION__" />
-
           <meta
             property="og:url"
             content={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
