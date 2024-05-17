@@ -221,7 +221,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      {Object.values(headTag).length !== 0 && <HeadTags headTag={headTag} />}
+      {/* {Object.values(headTag).length !== 0 && <HeadTags headTag={headTag} />} */}
 
       <div className="side-space">
         <div className="p-[20px]">
@@ -421,12 +421,12 @@ const Dashboard = () => {
                                       <Menu.Item>
                                         {({ active }) => (
                                           <a
-                                            href={`/post/${item.id}`}
-                                            // href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                                            //   "Check out this post! " +
-                                            //     "https://aqurableek-5rhg.vercel.app/post/" +
-                                            //     item.id
-                                            // )}`}
+                                            // href={`/post/${item.id}`}
+                                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                                              "Check out this post! " +
+                                                "https://aqurableek-5rhg.vercel.app/post/" +
+                                                item.id
+                                            )}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className={
