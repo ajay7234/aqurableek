@@ -45,6 +45,8 @@ function Post() {
         setPostData(englishPostData);
       }
     }
+
+    console.log("postData", postData);
   }, [userData, tweetVoice, tweetCountry, tweetEnglish, postData]);
 
   const handleNavigate = (item) => {
@@ -63,31 +65,34 @@ function Post() {
     <div>
       {postData && (
         <Helmet>
-          {/* <title>Aqrableek - Post</title>
-          <meta property="og:title" content={postData.description} /> */}
-          {/* <meta property="og:description" content={postData.description} /> */}
-          <meta
-            property="og:image"
-            content={postData?.user?.profilePic || Avtar}
-          />
-          <meta property="og:type" content="website" />
+          <meta name="description" content="__META_OG_DESCRIPTION__" />
+
           <meta
             property="og:url"
             content={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
           />
-          {/* <meta property="og:type" content="website" />
-          <meta property="og:site_name" content="Aqrableek" />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="__META_OG_TITLE__" />
+          <meta property="og:description" content="__META_OG_DESCRIPTION__" />
+          <meta
+            property="og:image"
+            content={`${postData?.user?.profilePic}__META_OG_IMAGE__`}
+          />
 
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={postData.description} />
-          <meta name="twitter:description" content={postData.description} /> */}
           <meta
-            name="twitter:image"
-            content={postData?.user?.profilePic || Avtar}
+            property="twitter:domain"
+            content="aqurableek-5rhg.vercel.app"
           />
           <meta
-            name="twitter:url"
+            property="twitter:url"
             content={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
+          />
+          <meta name="twitter:title" content="__META_OG_TITLE__" />
+          <meta name="twitter:description" content="__META_OG_DESCRIPTION__" />
+          <meta
+            name="twitter:image"
+            content={`${postData?.user?.profilePic}__META_OG_IMAGE__`}
           />
         </Helmet>
       )}
