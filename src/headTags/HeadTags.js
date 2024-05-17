@@ -14,13 +14,12 @@ const HeadTags = (props) => {
   return (
     <div>
       <Helmet>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta property="og:title" content={props.headTag.description} />
-        <meta property="og:title" key="og:title" content="Aqrableek" />
-        <meta property="og:locale" key="og:locale" content="en_US" />
+        {/* <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" /> */}
+        {/* <meta property="og:title" content={props.headTag.description} /> */}
+        {/* <meta property="og:locale" key="og:locale" content="en_US" />
         <meta charSet="utf-8" />
-        <meta property="og:type" key="og:type" content="website" />
+        <meta property="og:type" key="og:type" content="website" /> */}
         <meta
           property="og:description"
           key="og:description"
@@ -36,11 +35,11 @@ const HeadTags = (props) => {
           property="og:url"
           content={`https://aqurableek-5rhg.vercel.app/post/${props.headTag.id}`}
         />
-        <meta property="og:type" content="website" />
+        {/* <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Aqrableek" />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={props.headTag.description} />
+        <meta name="twitter:card" content="summary_large_image" /> */}
+        {/* <meta name="twitter:title" content={props.headTag.description} /> */}
         <meta name="twitter:description" content={props.headTag.description} />
         <meta
           name="twitter:image"

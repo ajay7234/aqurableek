@@ -63,23 +63,24 @@ function Post() {
     <div>
       {postData && (
         <Helmet>
-          <title>Aqrableek - Post</title>
-          <meta property="og:title" content={postData.description} />
-          <meta property="og:description" content={postData.description} />
+          {/* <title>Aqrableek - Post</title>
+          <meta property="og:title" content={postData.description} /> */}
+          {/* <meta property="og:description" content={postData.description} /> */}
           <meta
             property="og:image"
             content={postData?.user?.profilePic || Avtar}
           />
+          <meta property="og:type" content="website" />
           <meta
             property="og:url"
             content={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
           />
-          <meta property="og:type" content="website" />
+          {/* <meta property="og:type" content="website" />
           <meta property="og:site_name" content="Aqrableek" />
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={postData.description} />
-          <meta name="twitter:description" content={postData.description} />
+          <meta name="twitter:description" content={postData.description} /> */}
           <meta
             name="twitter:image"
             content={postData?.user?.profilePic || Avtar}
