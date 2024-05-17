@@ -49,7 +49,7 @@ function Post() {
 
     if (postData) {
       axios
-        .post("/post/:id", postData)
+        .post(`/post/${params.id}`, postData)
         .then((response) => {
           console.log("respo", response);
           console.log("Post data sent successfully");
@@ -82,18 +82,18 @@ function Post() {
             rel="canonical"
             href={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
           />
-          <link rel="og:image" href={`${postData?.user?.profilePic}`} />
-          <meta name="description" content="__META_OG_DESCRIPTION__" />
+          <link rel="og:image" href={postData?.user?.profilePic} />
+          <meta name="description" content={postData.description} />
           <meta
             property="og:url"
             content={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
           />
           <meta property="og:type" content="website" />
-          <meta property="og:title" content="__META_OG_TITLE__" />
-          <meta property="og:description" content="__META_OG_DESCRIPTION__" />
+          <meta property="og:title" content={postData.title} />
+          <meta property="og:description" content={postData.description} />
           <meta
             property="og:image"
-            content={`${postData?.user?.profilePic}__META_OG_IMAGE__`}
+            content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq7BgpG1CwOveQ_gEFgOJASWjgzHAgVfyozkIXk67LzN1jnj9I&s"
           />
 
           <meta name="twitter:card" content="summary_large_image" />
@@ -105,12 +105,9 @@ function Post() {
             property="twitter:url"
             content={`https://aqurableek-5rhg.vercel.app/post/${params.id}`}
           />
-          <meta name="twitter:title" content="__META_OG_TITLE__" />
-          <meta name="twitter:description" content="__META_OG_DESCRIPTION__" />
-          <meta
-            name="twitter:image"
-            content={`${postData?.user?.profilePic}__META_OG_IMAGE__`}
-          />
+          <meta name="twitter:title" content={postData.title} />
+          <meta name="twitter:description" content={postData.description} />
+          <meta name="twitter:image" content={postData?.user?.profilePic} />
         </Helmet>
       )}
 
