@@ -22,7 +22,7 @@ const Home = () => {
   return (
     <>
       <div>
-        <Helmet>
+        {/* <Helmet>
           <meta
             property="og:image"
             content={`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6TaCLCqU4K0ieF27ayjl51NmitWaJAh_X0r1rLX4gMvOe0MDaYw&s__META_OG_IMAGE__`}
@@ -31,7 +31,7 @@ const Home = () => {
             property="og:url"
             content={`https://aqurableek-5rhg.vercel.app`}
           />
-        </Helmet>
+        </Helmet> */}
         <div className="bg-[#f66666] pt-[30px] pb-[15px]">
           <div className="flex justify-center ">
             <button
