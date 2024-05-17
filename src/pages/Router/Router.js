@@ -47,12 +47,12 @@ const Router = () => {
           }
         />
         <Route path="/*" element={<NotFound />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/user-profile/:id" element={<UserProfile />} />
-          <Route path="/post/:id" element={<Post />} />
-        </Route>
+        {/* <Route element={<ProtectedRoute />}> */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/user-profile/:id" element={<UserProfile />} />
+        <Route path="/post/:id" element={<Post />} />
+        {/* </Route> */}
       </Routes>
     </>
   );
